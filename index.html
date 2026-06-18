@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>KCPH · Staff Satisfaction Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Khmer:wght@700;900&family=Noto+Sans+Khmer:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --T:#0B5E63;--Td:#083E42;--Tm:#0D7377;--Tl:#13929A;--Txl:#E0F4F5;--T2:#C8EBEC;
+  --A:#E8922A;--Ad:#C47820;--Axl:#FEF3E2;
+  --G:#1A7A4A;--Gxl:#E8F5E9;
+  --R:#C53030;--Rxl:#FEF0F0;
+  --ink:#111E27;--ink2:#2D3F4F;--ink3:#5A6F82;--ink4:#8FA3B2;
+  --ln:#D4E3E8;--bg:#F2F7F8;--wh:#FFFFFF;
+  --r:12px;--rs:8px;
+  --sh:0 1px 4px rgba(11,94,99,.07),0 4px 16px rgba(11,94,99,.09);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans Khmer','DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;min-height:100vh;padding-bottom:72px}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+img{display:block}
+
+/* HERO */
+.hero{background:linear-gradient(150deg,var(--Td) 0%,var(--T) 50%,var(--Tl) 100%);padding:20px 16px 24px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 14px),repeating-linear-gradient(-45deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 14px);pointer-events:none}
+.h-inner{max-width:720px;margin:0 auto;position:relative;z-index:1}
+.h-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.h-logo{width:50px;height:50px;border-radius:50%;border:2px solid rgba(255,255,255,.25);object-fit:contain;background:rgba(255,255,255,.1);padding:3px;flex-shrink:0}
+.h-fac{font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.h-badge{display:inline-flex;align-items:center;gap:5px;margin-top:4px;background:rgba(232,146,42,.2);border:1px solid rgba(232,146,42,.4);border-radius:99px;padding:2px 10px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:#FFD080}
+.h-dot{width:6px;height:6px;border-radius:50%;background:var(--A)}
+.h-title{font-family:'Noto Serif Khmer',serif;font-size:clamp(18px,5vw,24px);font-weight:700;color:#fff;line-height:1.3;margin-bottom:3px;text-shadow:0 2px 8px rgba(0,0,0,.2)}
+.h-sub{font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,.55)}
+/* Lotus progress */
+.lotus{margin-top:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:11px 13px}
+.lotus-lbl{font-family:'DM Sans',sans-serif;font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.lotus-row{display:flex;align-items:center}
+.lstep{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+.lstep:not(:last-child)::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;background:rgba(255,255,255,.12);z-index:0;transition:background .4s}
+.lstep.done:not(:last-child)::after{background:var(--A)}
+.lstep-ico{width:30px;height:30px;position:relative;z-index:1}
+.lstep-ico svg{width:100%;height:100%}
+.lstep-lbl{font-family:'DM Sans',sans-serif;font-size:9px;color:rgba(255,255,255,.4);text-align:center;line-height:1.2;max-width:50px;transition:color .3s}
+.lstep.done .lstep-lbl{color:rgba(255,255,255,.8)}
+.lstep.active .lstep-lbl{color:#FFD080;font-weight:600}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--ln);display:flex;z-index:200;box-shadow:0 -3px 16px rgba(0,0,0,.07);padding-bottom:env(safe-area-inset-bottom)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 4px 7px;gap:2px;color:var(--ink4);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;position:relative;transition:color .2s;cursor:pointer;border:none;background:none}
+.nb.on{color:var(--T)}
+.nb.on::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2.5px;border-radius:0 0 3px 3px;background:var(--T)}
+.nb.adm-tab{color:var(--ink4)}
+.nb.adm-tab.on{color:var(--A)}
+.nb.adm-tab.on::before{background:var(--A)}
+.nb-ico{font-size:19px;line-height:1}
+.adm-only{display:none}
+
+/* VIEWS */
+.view{display:none}.view.on{display:block}
+.vi{max-width:720px;margin:0 auto;padding:14px}
+
+/* CARDS */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden;border:1px solid rgba(212,227,232,.5)}
+.chd{padding:12px 15px 10px;border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:10px}
+.chd-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.it{background:var(--Txl)} .ia{background:var(--Axl)} .ig{background:var(--Gxl)} .ir{background:var(--Rxl)}
+.chd-kh{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3}
+.chd-en{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink3)}
+.cb{padding:15px}
+.cb0{padding:0}
+
+/* FORM */
+.fld{margin-bottom:13px}.fld:last-child{margin-bottom:0}
+.flbl{display:block;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:5px}
+.req{color:var(--A);margin-left:2px}
+.sw{position:relative}
+.sw::after{content:'';position:absolute;right:12px;top:50%;transform:translateY(-50%);width:0;height:0;border:5px solid transparent;border-top-color:var(--ink3);pointer-events:none}
+select,input[type=password],textarea{width:100%;padding:10px 13px;border:1.5px solid var(--ln);border-radius:var(--rs);font-family:inherit;font-size:14px;color:var(--ink);background:#fff;appearance:none;-webkit-appearance:none;transition:border-color .2s,box-shadow .2s}
+select{padding-right:34px}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--T);box-shadow:0 0 0 3px rgba(11,94,99,.1)}
+textarea{resize:vertical;min-height:80px;line-height:1.7}
+
+/* LIKERT */
+.dom-eye{display:flex;align-items:center;gap:9px;padding:10px 15px 8px;background:linear-gradient(90deg,var(--Txl),transparent);border-bottom:1px solid var(--ln)}
+.dom-num{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;color:var(--T);background:var(--Txl);border:1.5px solid var(--Tl);border-radius:6px;padding:1px 8px;flex-shrink:0}
+.dom-kh{font-size:12px;font-weight:700;color:var(--Td);line-height:1.3}
+.dom-en{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink3)}
+.sc-leg{display:flex;justify-content:space-between;padding:6px 15px 3px;font-family:'DM Sans',sans-serif;font-size:10px;color:var(--ink4);font-style:italic}
+.lki{padding:10px 15px 12px;border-bottom:1px solid rgba(212,227,232,.4);transition:background .15s}
+.lki:last-child{border-bottom:none}
+.lki.ans{background:linear-gradient(90deg,rgba(13,115,119,.03),transparent)}
+.lk-qkh{font-size:13px;font-weight:500;margin-bottom:2px}
+.lk-qen{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink3);margin-bottom:8px}
+.lk-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.lkr{display:none}
+.lkl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 3px;border:1.5px solid var(--ln);border-radius:9px;cursor:pointer;transition:all .18s cubic-bezier(.34,1.56,.64,1);background:#fff;min-height:52px;text-align:center}
+.on{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;line-height:1}
+.ok{font-size:9px;color:var(--ink4);line-height:1.2}
+.lkl[data-v="1"] .on{color:#1A7A4A}
+.lkl[data-v="2"] .on{color:#4CAF50}
+.lkl[data-v="3"] .on{color:#E8922A}
+.lkl[data-v="4"] .on{color:#E64A19}
+.lkl[data-v="5"] .on{color:#B71C1C}
+.lkr:checked+.lkl{transform:translateY(-2px) scale(1.05);box-shadow:0 4px 12px rgba(11,94,99,.2)}
+.lkr[value="1"]:checked+.lkl{background:#1A7A4A;border-color:#1A7A4A}
+.lkr[value="2"]:checked+.lkl{background:#4CAF50;border-color:#4CAF50}
+.lkr[value="3"]:checked+.lkl{background:#E8922A;border-color:#E8922A}
+.lkr[value="4"]:checked+.lkl{background:#E64A19;border-color:#E64A19}
+.lkr[value="5"]:checked+.lkl{background:#B71C1C;border-color:#B71C1C}
+.lkr:checked+.lkl .on,.lkr:checked+.lkl .ok{color:#fff}
+.lkl:hover{border-color:var(--Tl);background:var(--Txl)}
+
+/* BUTTONS */
+.btn-sub{width:100%;background:linear-gradient(135deg,var(--T),var(--Tl));color:#fff;border-radius:var(--rs);padding:14px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(11,94,99,.3);transition:opacity .2s}
+.btn-sub:hover:not(:disabled){opacity:.88}
+.btn-sub:disabled{opacity:.6;cursor:not-allowed}
+.btn-2{background:#fff;color:var(--T);border:1.5px solid var(--T);border-radius:var(--rs);padding:8px 15px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all .2s;cursor:pointer}
+.btn-2:hover{background:var(--Txl)}
+.btn-a{background:linear-gradient(135deg,var(--A),var(--Ad));color:#fff;border-radius:var(--rs);padding:8px 15px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(232,146,42,.3);transition:opacity .2s;cursor:pointer;border:none}
+.btn-a:hover{opacity:.9}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sub-zone{padding:13px 15px 15px;background:linear-gradient(160deg,var(--Txl),#fff);border-top:1px solid var(--ln)}
+
+/* ALERTS */
+.alert{padding:11px 13px;border-radius:var(--rs);font-size:12px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.ae{background:var(--Rxl);color:#8B1A1A;border:1px solid #FCCACA}
+.ai{background:var(--Axl);color:#7B4A10;border:1px solid rgba(232,146,42,.3)}
+.a-ico{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* SUCCESS OVERLAY */
+.suc{display:none;position:fixed;inset:0;background:linear-gradient(160deg,var(--Td),var(--T));z-index:999;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 24px}
+.suc.show{display:flex}
+.suc-lotus{font-size:70px;animation:bloom .8s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bloom{0%{transform:scale(0) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.suc-title{font-family:'Noto Serif Khmer',serif;font-size:22px;font-weight:700;color:#fff;margin:16px 0 6px}
+.suc-sub{font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,.7);margin-bottom:4px}
+.suc-id{font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:26px}
+.suc-btn{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--rs);padding:12px 28px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+
+/* ANON BANNER */
+.anon{background:linear-gradient(135deg,var(--Axl),#FFF9F0);border:1px solid rgba(232,146,42,.3);border-radius:var(--r);padding:12px 14px;display:flex;gap:10px;margin-bottom:12px}
+.anon-kh{font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:2px}
+.anon-en{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink3);line-height:1.5}
+
+/* ROLE GATE */
+.gate-ico{width:64px;height:64px;background:var(--Txl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;border:3px solid rgba(13,115,119,.15)}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.role-box{border-radius:var(--rs);padding:13px}
+.role-emo{font-size:26px;margin-bottom:6px}
+.role-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.role-list{font-family:'DM Sans',sans-serif;font-size:12px;line-height:1.9}
+
+/* DASHBOARD KPI */
+.kpi4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(min-width:580px){.kpi4{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:#fff;border-radius:var(--r);padding:14px 13px 13px;border:1px solid rgba(212,227,232,.5);box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.kpi.kt::before{background:linear-gradient(90deg,var(--T),var(--Tl))}
+.kpi.ka::before{background:linear-gradient(90deg,var(--A),#F5C060)}
+.kpi.kg::before{background:linear-gradient(90deg,var(--G),#4CAF50)}
+.kpi-val{font-family:'DM Sans',sans-serif;font-size:29px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-val.t{color:var(--Tm)}.kpi-val.a{color:var(--A)}.kpi-val.g{color:var(--G)}
+.kpi-lbl{font-size:11px;color:var(--ink3);line-height:1.3}
+
+/* SATISFACTION RING */
+.ring-wrap{display:flex;align-items:center;gap:18px;padding:4px 0 12px}
+.ring{position:relative;width:118px;height:118px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--Txl);stroke-width:10}
+.ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.25,.46,.45,.94)}
+.ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring-pct{font-family:'DM Sans',sans-serif;font-size:25px;font-weight:700}
+.ring-pct.hi{color:var(--G)}.ring-pct.md{color:var(--A)}.ring-pct.lo{color:var(--R)}
+.ring-sub{font-size:9px;color:var(--ink3);font-family:'DM Sans',sans-serif;line-height:1.2;margin-top:1px}
+.ring-stats{flex:1;min-width:0}
+.rs-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--ln)}
+.rs-row:last-child{border-bottom:none}
+.rs-lbl{font-size:12px;color:var(--ink3)}
+.rs-val{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600}
+.rs-note{font-family:'DM Sans',sans-serif;font-size:10px;color:var(--ink4);line-height:1.5;margin-top:7px}
+
+/* DIST BARS */
+.dist-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dist-lbl{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;width:25px;text-align:right;flex-shrink:0}
+.dist-track{flex:1;height:14px;background:var(--Txl);border-radius:99px;overflow:hidden}
+.dist-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.25,.46,.45,.94)}
+.d1{background:linear-gradient(90deg,#1A7A4A,#4CAF50)}
+.d2{background:linear-gradient(90deg,#4CAF50,#81C784)}
+.d3{background:linear-gradient(90deg,#E8922A,#FFB74D)}
+.d4{background:linear-gradient(90deg,#E64A19,#FF7043)}
+.d5{background:linear-gradient(90deg,#B71C1C,#E53935)}
+.dist-n{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink4);width:26px;text-align:right;flex-shrink:0}
+
+/* DOMAIN BARS */
+.dom-bar-row{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.dom-bar-lbl{font-size:11px;color:var(--ink2);width:130px;flex-shrink:0;line-height:1.3}
+.dom-bar-track{flex:1;height:8px;background:var(--Txl);border-radius:99px;overflow:hidden}
+.dom-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--T),var(--Tl));transition:width .8s ease}
+.dom-bar-score{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--ink2);width:26px;text-align:right;flex-shrink:0}
+
+/* DEPT MINI */
+.dept-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
+@media(max-width:460px){.dept-cols{grid-template-columns:1fr}}
+.dept-mini-hd{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.dept-mini-hd.b{color:var(--G)}.dept-mini-hd.w{color:var(--R)}
+.dept-mini-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--ln);gap:6px}
+.dept-mini-row:last-child{border-bottom:none}
+.dept-mini-name{font-size:11px;color:var(--ink2);flex:1;line-height:1.3}
+
+/* CHIPS */
+.chip{display:inline-block;padding:2px 8px;border-radius:99px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700}
+.chi{background:rgba(26,122,74,.12);color:var(--G)}
+.chm{background:rgba(232,146,42,.15);color:var(--Ad)}
+.chl{background:rgba(197,48,48,.12);color:var(--R)}
+
+/* CHART CONTAINERS */
+.ch200{position:relative;height:200px;margin-top:10px}
+.ch240{position:relative;height:240px;margin-top:10px}
+.ch280{position:relative;height:280px;margin-top:4px}
+
+/* COMMENT CARDS */
+.cmt{padding:10px 12px;background:var(--bg);border-radius:var(--rs);margin-bottom:8px;border-left:3px solid var(--T2)}
+.cmt-txt{font-size:13px;color:var(--ink2);line-height:1.5;margin-bottom:3px}
+.cmt-meta{font-family:'DM Sans',sans-serif;font-size:10px;color:var(--ink4)}
+
+/* RESPONSES */
+.flt-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.flt-row .sw{flex:1;min-width:130px}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:560px}
+thead tr{background:var(--T)}
+th{padding:9px 11px;text-align:left;font-weight:600;color:#fff;white-space:nowrap;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.04em}
+td{padding:8px 11px;border-bottom:1px solid var(--ln);color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--Txl)}
+
+/* SECTION HEAD */
+.sec{display:flex;align-items:center;justify-content:space-between;margin:14px 0 9px}
+.sec-t{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em}
+
+/* COMPLIANCE */
+.comp-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--ln)}
+.comp-row:last-child{border-bottom:none}
+.comp-code{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;background:var(--Txl);color:var(--Td);border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.comp-txt{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink2);line-height:1.5}
+
+/* MISC */
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle}
+.spin-dk{border-color:rgba(11,94,99,.2);border-top-color:var(--T)}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:28px 16px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink3)}
+.empty{text-align:center;padding:36px 16px;color:var(--ink4)}
+.empty-ico{font-size:38px;margin-bottom:8px}
+.txt-sm{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink3)}
+.hr{border:none;border-top:1px solid var(--ln);margin:12px 0}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+@media print{.hero,.bnav,.btn-row,.btn-sub{display:none!important}.card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}body{background:#fff;padding:0}.view{display:block!important}#v-survey,#v-admin{display:none!important}.vi{padding:0}}
+</style>
+</head>
+<body>
+
+<!-- SUCCESS OVERLAY -->
+<div class="suc" id="suc">
+  <div class="suc-lotus">🪷</div>
+  <div class="suc-title">អរគុណចំពោះការចូលរួម!</div>
+  <div class="suc-sub">Your response has been recorded. Thank you.</div>
+  <div class="suc-id" id="suc-id"></div>
+  <button class="suc-btn" onclick="closeSuc()">← Submit another response</button>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="h-inner">
+    <div class="h-top">
+      <img src="data:image/jpeg;base64,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" alt="KCPH" class="h-logo">
+      <div>
+        <div class="h-fac">Kampong Chhnang Provincial Hospital · CPA3</div>
+        <div class="h-badge"><span class="h-dot"></span>CHAS HR.9 Compliant</div>
+      </div>
+    </div>
+    <div class="h-title">ការស្ទង់ពិពណ៌នាការពេញចិត្តបុគ្គលិក</div>
+    <div class="h-sub">Staff Satisfaction Survey · Annual / Semi-Annual</div>
+    <div class="lotus" id="lotus">
+      <div class="lotus-lbl">Progress / ដំណើរការ</div>
+      <div class="lotus-row">
+        <div class="lstep active" id="ls0"><div class="lstep-ico"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="11" ry="11" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.6)" stroke-width="1.5"/><text x="15" y="20" text-anchor="middle" font-size="12" fill="white">👤</text></svg></div><div class="lstep-lbl">ព័ត៌មាន</div></div>
+        <div class="lstep" id="ls1"><div class="lstep-ico"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="11" ry="11" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/><text x="15" y="20" text-anchor="middle" font-size="12" fill="rgba(255,255,255,.4)">🏥</text></svg></div><div class="lstep-lbl">បរិស្ថាន</div></div>
+        <div class="lstep" id="ls2"><div class="lstep-ico"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="11" ry="11" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/><text x="15" y="20" text-anchor="middle" font-size="12" fill="rgba(255,255,255,.4)">🤝</text></svg></div><div class="lstep-lbl">គ្រប់គ្រង</div></div>
+        <div class="lstep" id="ls3"><div class="lstep-ico"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="11" ry="11" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/><text x="15" y="20" text-anchor="middle" font-size="12" fill="rgba(255,255,255,.4)">📚</text></svg></div><div class="lstep-lbl">បណ្តុះ</div></div>
+        <div class="lstep" id="ls4"><div class="lstep-ico"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="11" ry="11" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/><text x="15" y="20" text-anchor="middle" font-size="12" fill="rgba(255,255,255,.4)">⭐</text></svg></div><div class="lstep-lbl">ទូទៅ</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nb on" id="nb-survey" onclick="gT('survey')"><span class="nb-ico">📝</span>Survey</button>
+  <button class="nb adm-only adm-tab" id="nb-dashboard" onclick="gT('dashboard')"><span class="nb-ico">📊</span>Dashboard</button>
+  <button class="nb adm-only adm-tab" id="nb-responses" onclick="gT('responses')"><span class="nb-ico">📋</span>Responses</button>
+  <button class="nb adm-tab" id="nb-admin" onclick="gT('admin')"><span class="nb-ico">🔐</span>Admin</button>
+</nav>
+
+<!-- ══ VIEW: SURVEY ══════════════════════════════════ -->
+<div class="view on" id="v-survey"><div class="vi">
+
+<div class="anon"><span style="font-size:20px;flex-shrink:0">🔒</span><div><div class="anon-kh">ការស្ទង់នេះគ្មានឈ្មោះ — This survey is anonymous</div><div class="anon-en">All responses are confidential and used only for hospital improvement.</div></div></div>
+<div id="s-msg"></div>
+
+<!-- A: Demographics -->
+<div class="card">
+  <div class="chd"><div class="chd-ico it">👤</div><div><div class="chd-kh">ក. ព័ត៌មានទូទៅ</div><div class="chd-en">A. General Information</div></div></div>
+  <div class="cb">
+    <div class="fld"><label class="flbl">ផ្នែក / Department<span class="req">*</span></label><div class="sw"><select id="f-dept" onchange="upP()"><option value="">— ជ្រើសសរ / Select —</option><option>ផ្នែកការិយាល័យរដ្ឋបាល-បុគ្គលិក</option><option>ផ្នែកគណនេយ្យ និងហិរញ្ញវត្ថុ</option><option>ផ្នែកការិយាល័យបច្ចេកទេស</option><option>ផ្នែកពិគ្រោះជំងឺក្រៅ</option><option>ផ្នែកសល្យាគារ</option><option>ផ្នែករបួសសល្យសាស្ត្រ ក</option><option>ផ្នែករបួលសល្យសាស្ត្រ ខ</option><option>ផ្នែកជំងឺទូទៅ</option><option>ផ្នែកសង្រ្គោះបន្ទាន់កម្រិតធ្ងន់</option><option>ផ្នែកសង្រ្គោះបន្ទាន់</option><option>ផ្នែកសម្ភព</option><option>ផ្នែករោគស្រ្តី</option><option>ផ្នែកជំងឺកុមារ</option><option>ផ្នែកចក្ខុរោគ</option><option>ផ្នែកមន្ទីរពិសោធន៍ និងផ្តល់ឈាម</option><option>ផ្នែកឃ្លាំងឱសថ និងបរិក្ខារពេទ្យ</option><option>ផ្នែកជំងឺរបេង</option><option>ផ្នែកទឹកនោមផ្អែម និងលើសសម្ពាធឈាម (ជំងឺមិនឆ្លង)</option><option>ផ្នែកសុខភាពផ្លូវចិត្ត</option><option>ផ្នែកសុខភាពមាត់ធ្មេញ</option><option>ផ្នែកព្យាបាលចលនា</option><option>ផ្នែកអេកូ-ថតឆ្លុះ (X-Ray)</option><option>ផ្នែកប្រព័ន្ធព័ត៌មានសុខាភិបាល (PMRS)</option><option>ផ្នែក OI / ART (ថែទាំ និងព្យាបាលអ្នកជំងឺអេដស៍)</option><option>ផ្នែកគ្លីនិកសុខភាពគ្រួសារ</option><option>ផ្នែករោងជាង និងជួសជុល</option><option>ផ្នែកសង្គ្រោះទារក</option><option>ផ្នែកលាងឈាម</option><option>ផ្នែកត្រចៀក ច្រមុះ បំពង់ក</option><option>ផ្នែកប្រព័ន្ធឌីជីថល</option><option>ផ្នែករម្ងាប់មេរោគរួម</option><option>ផ្នែកគេហកិច្ច បោកគក់ និងផ្ទះបាយ</option></select></div></div>
+    <div class="fld"><label class="flbl">វិជ្ជាជីវៈ / Professional Category<span class="req">*</span></label><div class="sw"><select id="f-cat" onchange="upP()"><option value="">— ជ្រើសសរ / Select —</option><option>វេជ្ជបណ្ឌិត / Physician</option><option>គិលានុបដ្ឋាក / Nurse</option><option>助产士 / Midwife</option><option>ឱសថការ / Pharmacist</option><option>បច្ចេកទេសមន្ទីរពិសោធន៍ / Lab Technician</option><option>បច្ចេកទេស X-Ray / Radiographer</option><option>អ្នកព្យាបាលចលនា / Physiotherapist</option><option>បុគ្គលិករដ្ឋបាល / Administrative Staff</option><option>ជំនួយការ / Support Staff</option><option>ផ្សេងៗ / Other</option></select></div></div>
+    <div class="fld"><label class="flbl">ឆ្នាំបំពេញការងារ / Years of Service<span class="req">*</span></label><div class="sw"><select id="f-years" onchange="upP()"><option value="">— ជ្រើសសរ / Select —</option><option>តិចជាង 1 ឆ្នាំ / Less than 1 year</option><option>1–3 ឆ្នាំ / 1–3 years</option><option>4–10 ឆ្នាំ / 4–10 years</option><option>ច្រើនជាង 10 ឆ្នាំ / More than 10 years</option></select></div></div>
+    <div class="fld"><label class="flbl">ភេទ / Gender</label><div class="sw"><select id="f-gender"><option value="">— ជ្រើសសរ / Select —</option><option>ប្រុស / Male</option><option>ស្រី / Female</option><option>មិនបង្ហាញ / Prefer not to say</option></select></div></div>
+  </div>
+</div>
+
+<!-- B: Work Environment -->
+<div class="card">
+  <div class="dom-eye"><span class="dom-num">B</span><div><div class="dom-kh">បរិស្ថានការងារ</div><div class="dom-en">Work Environment</div></div></div>
+  <div class="sc-leg"><span>😊 1 = ល្អណាស់ / Very Satisfied</span><span>😞 5 = មិនល្អ / Very Dissatisfied</span></div>
+  <div class="lki" id="qi-we1"><div class="lk-qkh">ខ.១ ស្ថានភាពកន្លែងធ្វើការ (ពន្លឺ សីតុណ្ហភាព ស្អាត)</div><div class="lk-qen">Physical conditions — lighting, temperature, cleanliness</div><div class="lk-opts"><input class="lkr" type="radio" name="we1" id="w11" value="1" onchange="onL('we1')"><label class="lkl" for="w11" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="we1" id="w12" value="2" onchange="onL('we1')"><label class="lkl" for="w12" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="we1" id="w13" value="3" onchange="onL('we1')"><label class="lkl" for="w13" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="we1" id="w14" value="4" onchange="onL('we1')"><label class="lkl" for="w14" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="we1" id="w15" value="5" onchange="onL('we1')"><label class="lkl" for="w15" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-we2"><div class="lk-qkh">ខ.២ ឧបករណ៍ និងសម្ភារៈចាំបាច់</div><div class="lk-qen">Availability of necessary equipment and supplies</div><div class="lk-opts"><input class="lkr" type="radio" name="we2" id="w21" value="1" onchange="onL('we2')"><label class="lkl" for="w21" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="we2" id="w22" value="2" onchange="onL('we2')"><label class="lkl" for="w22" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="we2" id="w23" value="3" onchange="onL('we2')"><label class="lkl" for="w23" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="we2" id="w24" value="4" onchange="onL('we2')"><label class="lkl" for="w24" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="we2" id="w25" value="5" onchange="onL('we2')"><label class="lkl" for="w25" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-we3"><div class="lk-qkh">ខ.៣ ភាពសុវត្ថិភាពនៅកន្លែងធ្វើការ</div><div class="lk-qen">Workplace safety and security</div><div class="lk-opts"><input class="lkr" type="radio" name="we3" id="w31" value="1" onchange="onL('we3')"><label class="lkl" for="w31" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="we3" id="w32" value="2" onchange="onL('we3')"><label class="lkl" for="w32" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="we3" id="w33" value="3" onchange="onL('we3')"><label class="lkl" for="w33" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="we3" id="w34" value="4" onchange="onL('we3')"><label class="lkl" for="w34" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="we3" id="w35" value="5" onchange="onL('we3')"><label class="lkl" for="w35" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+</div>
+
+<!-- C: Management -->
+<div class="card">
+  <div class="dom-eye"><span class="dom-num">C</span><div><div class="dom-kh">ការគ្រប់គ្រង និងភាពជាអ្នកដឹកនាំ</div><div class="dom-en">Management &amp; Leadership</div></div></div>
+  <div class="sc-leg"><span>😊 1 = ល្អណាស់</span><span>😞 5 = មិនល្អ</span></div>
+  <div class="lki" id="qi-mg1"><div class="lk-qkh">គ.១ ទំនាក់ទំនងថ្នាក់គ្រប់គ្រង–បុគ្គលិក</div><div class="lk-qen">Communication between management and staff</div><div class="lk-opts"><input class="lkr" type="radio" name="mg1" id="m11" value="1" onchange="onL('mg1')"><label class="lkl" for="m11" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="mg1" id="m12" value="2" onchange="onL('mg1')"><label class="lkl" for="m12" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="mg1" id="m13" value="3" onchange="onL('mg1')"><label class="lkl" for="m13" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="mg1" id="m14" value="4" onchange="onL('mg1')"><label class="lkl" for="m14" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="mg1" id="m15" value="5" onchange="onL('mg1')"><label class="lkl" for="m15" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-mg2"><div class="lk-qkh">គ.២ ការគោរព និងស្មើភាពពីថ្នាក់លើ</div><div class="lk-qen">Respect and fair treatment from supervisors</div><div class="lk-opts"><input class="lkr" type="radio" name="mg2" id="m21" value="1" onchange="onL('mg2')"><label class="lkl" for="m21" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="mg2" id="m22" value="2" onchange="onL('mg2')"><label class="lkl" for="m22" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="mg2" id="m23" value="3" onchange="onL('mg2')"><label class="lkl" for="m23" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="mg2" id="m24" value="4" onchange="onL('mg2')"><label class="lkl" for="m24" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="mg2" id="m25" value="5" onchange="onL('mg2')"><label class="lkl" for="m25" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-mg3"><div class="lk-qkh">គ.៣ ការចូលរួមបុគ្គលិកក្នុងការសម្រេចចិត្ត</div><div class="lk-qen">Staff involvement in decision-making</div><div class="lk-opts"><input class="lkr" type="radio" name="mg3" id="m31" value="1" onchange="onL('mg3')"><label class="lkl" for="m31" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="mg3" id="m32" value="2" onchange="onL('mg3')"><label class="lkl" for="m32" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="mg3" id="m33" value="3" onchange="onL('mg3')"><label class="lkl" for="m33" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="mg3" id="m34" value="4" onchange="onL('mg3')"><label class="lkl" for="m34" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="mg3" id="m35" value="5" onchange="onL('mg3')"><label class="lkl" for="m35" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+</div>
+
+<!-- D: Training -->
+<div class="card">
+  <div class="dom-eye"><span class="dom-num">D</span><div><div class="dom-kh">ការបណ្តុះបណ្តាល និងការអភិវឌ្ឍ</div><div class="dom-en">Training &amp; Development</div></div></div>
+  <div class="sc-leg"><span>😊 1 = ល្អណាស់</span><span>😞 5 = មិនល្អ</span></div>
+  <div class="lki" id="qi-tr1"><div class="lk-qkh">ឃ.១ ឱកាសបណ្តុះបណ្តាល / CME</div><div class="lk-qen">Opportunities for training and continuing education</div><div class="lk-opts"><input class="lkr" type="radio" name="tr1" id="t11" value="1" onchange="onL('tr1')"><label class="lkl" for="t11" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="tr1" id="t12" value="2" onchange="onL('tr1')"><label class="lkl" for="t12" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="tr1" id="t13" value="3" onchange="onL('tr1')"><label class="lkl" for="t13" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="tr1" id="t14" value="4" onchange="onL('tr1')"><label class="lkl" for="t14" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="tr1" id="t15" value="5" onchange="onL('tr1')"><label class="lkl" for="t15" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-tr2"><div class="lk-qkh">ឃ.២ ការបង្ហាត់ ណែនាំ ផ្តល់ feedback</div><div class="lk-qen">Coaching, mentoring and feedback from supervisors</div><div class="lk-opts"><input class="lkr" type="radio" name="tr2" id="t21" value="1" onchange="onL('tr2')"><label class="lkl" for="t21" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="tr2" id="t22" value="2" onchange="onL('tr2')"><label class="lkl" for="t22" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="tr2" id="t23" value="3" onchange="onL('tr2')"><label class="lkl" for="t23" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="tr2" id="t24" value="4" onchange="onL('tr2')"><label class="lkl" for="t24" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="tr2" id="t25" value="5" onchange="onL('tr2')"><label class="lkl" for="t25" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-tr3"><div class="lk-qkh">ឃ.៣ លទ្ធភាពឡើងឋានៈ / Career Growth</div><div class="lk-qen">Career advancement and professional growth prospects</div><div class="lk-opts"><input class="lkr" type="radio" name="tr3" id="t31" value="1" onchange="onL('tr3')"><label class="lkl" for="t31" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="tr3" id="t32" value="2" onchange="onL('tr3')"><label class="lkl" for="t32" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="tr3" id="t33" value="3" onchange="onL('tr3')"><label class="lkl" for="t33" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="tr3" id="t34" value="4" onchange="onL('tr3')"><label class="lkl" for="t34" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="tr3" id="t35" value="5" onchange="onL('tr3')"><label class="lkl" for="t35" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+</div>
+
+<!-- E: Compensation + Workload + Overall -->
+<div class="card">
+  <div class="dom-eye"><span class="dom-num">E</span><div><div class="dom-kh">ប្រាក់ខែ · បន្ទុក · ការវាយតម្លៃទូទៅ</div><div class="dom-en">Compensation · Workload · Overall</div></div></div>
+  <div class="sc-leg"><span>😊 1 = ល្អណាស់</span><span>😞 5 = មិនល្អ</span></div>
+  <div class="lki" id="qi-cp1"><div class="lk-qkh">ង.១ ប្រាក់ខែ ប្រាក់លើកទឹកចិត្ត</div><div class="lk-qen">Salary and financial incentives</div><div class="lk-opts"><input class="lkr" type="radio" name="cp1" id="c11" value="1" onchange="onL('cp1')"><label class="lkl" for="c11" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="cp1" id="c12" value="2" onchange="onL('cp1')"><label class="lkl" for="c12" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="cp1" id="c13" value="3" onchange="onL('cp1')"><label class="lkl" for="c13" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="cp1" id="c14" value="4" onchange="onL('cp1')"><label class="lkl" for="c14" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="cp1" id="c15" value="5" onchange="onL('cp1')"><label class="lkl" for="c15" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-cp2"><div class="lk-qkh">ង.២ ថ្ងៃឈប់សម្រាក ជំងឺ ពូជ</div><div class="lk-qen">Leave entitlements — annual, sick, maternity/paternity</div><div class="lk-opts"><input class="lkr" type="radio" name="cp2" id="c21" value="1" onchange="onL('cp2')"><label class="lkl" for="c21" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="cp2" id="c22" value="2" onchange="onL('cp2')"><label class="lkl" for="c22" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="cp2" id="c23" value="3" onchange="onL('cp2')"><label class="lkl" for="c23" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="cp2" id="c24" value="4" onchange="onL('cp2')"><label class="lkl" for="c24" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="cp2" id="c25" value="5" onchange="onL('cp2')"><label class="lkl" for="c25" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-wl1"><div class="lk-qkh">ច.១ ការបែងចែកបន្ទុកការងារមានសមភាព</div><div class="lk-qen">Fairness of workload distribution</div><div class="lk-opts"><input class="lkr" type="radio" name="wl1" id="l11" value="1" onchange="onL('wl1')"><label class="lkl" for="l11" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="wl1" id="l12" value="2" onchange="onL('wl1')"><label class="lkl" for="l12" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="wl1" id="l13" value="3" onchange="onL('wl1')"><label class="lkl" for="l13" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="wl1" id="l14" value="4" onchange="onL('wl1')"><label class="lkl" for="l14" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="wl1" id="l15" value="5" onchange="onL('wl1')"><label class="lkl" for="l15" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-wl2"><div class="lk-qkh">ច.២ ការថែទាំសុខភាព តុល្យភាពជីវិត</div><div class="lk-qen">Well-being and work-life balance support</div><div class="lk-opts"><input class="lkr" type="radio" name="wl2" id="l21" value="1" onchange="onL('wl2')"><label class="lkl" for="l21" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="wl2" id="l22" value="2" onchange="onL('wl2')"><label class="lkl" for="l22" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="wl2" id="l23" value="3" onchange="onL('wl2')"><label class="lkl" for="l23" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="wl2" id="l24" value="4" onchange="onL('wl2')"><label class="lkl" for="l24" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="wl2" id="l25" value="5" onchange="onL('wl2')"><label class="lkl" for="l25" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-ov1"><div class="lk-qkh">ឆ.១ ការពេញចិត្តទូទៅចំពោះការងារ</div><div class="lk-qen">Overall job satisfaction at KCPH</div><div class="lk-opts"><input class="lkr" type="radio" name="ov1" id="o11" value="1" onchange="onL('ov1')"><label class="lkl" for="o11" data-v="1"><span class="on">1</span><span class="ok">ល្អ​ណាស់</span></label><input class="lkr" type="radio" name="ov1" id="o12" value="2" onchange="onL('ov1')"><label class="lkl" for="o12" data-v="2"><span class="on">2</span><span class="ok">ល្អ</span></label><input class="lkr" type="radio" name="ov1" id="o13" value="3" onchange="onL('ov1')"><label class="lkl" for="o13" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="ov1" id="o14" value="4" onchange="onL('ov1')"><label class="lkl" for="o14" data-v="4"><span class="on">4</span><span class="ok">ខ្វះ</span></label><input class="lkr" type="radio" name="ov1" id="o15" value="5" onchange="onL('ov1')"><label class="lkl" for="o15" data-v="5"><span class="on">5</span><span class="ok">ខ្វះខ្លាំង</span></label></div></div>
+  <div class="lki" id="qi-ov2"><div class="lk-qkh">ឆ.២ ចំណង់បន្តការងារនៅ KCPH ក្នុង 2 ឆ្នាំ</div><div class="lk-qen">Intention to remain at KCPH in the next 2 years</div><div class="lk-opts"><input class="lkr" type="radio" name="ov2" id="o21" value="1" onchange="onL('ov2')"><label class="lkl" for="o21" data-v="1"><span class="on">1</span><span class="ok">ច្រើន​ណាស់</span></label><input class="lkr" type="radio" name="ov2" id="o22" value="2" onchange="onL('ov2')"><label class="lkl" for="o22" data-v="2"><span class="on">2</span><span class="ok">ច្រើន</span></label><input class="lkr" type="radio" name="ov2" id="o23" value="3" onchange="onL('ov2')"><label class="lkl" for="o23" data-v="3"><span class="on">3</span><span class="ok">មធ្យម</span></label><input class="lkr" type="radio" name="ov2" id="o24" value="4" onchange="onL('ov2')"><label class="lkl" for="o24" data-v="4"><span class="on">4</span><span class="ok">តិច</span></label><input class="lkr" type="radio" name="ov2" id="o25" value="5" onchange="onL('ov2')"><label class="lkl" for="o25" data-v="5"><span class="on">5</span><span class="ok">តិច​ណាស់</span></label></div></div>
+  <div style="padding:10px 15px 14px"><label class="flbl">មតិ ឬការណែនាំ / Comments &amp; suggestions (optional)</label><textarea id="f-comments" placeholder="សូមចែករំលែកគំនិត… / Share your thoughts…" rows="3"></textarea></div>
+  <div class="sub-zone"><button class="btn-sub" id="btn-sub" onclick="doSub()"><span>📤</span><span>បញ្ជូន — Submit Survey</span></button></div>
+</div>
+
+</div></div><!-- /survey -->
+
+
+<!-- ══ VIEW: DASHBOARD (Admin only) ══════════════════ -->
+<div class="view" id="v-dashboard"><div class="vi">
+
+  <!-- 4 KPI cards -->
+  <div class="kpi4">
+    <div class="kpi kt"><div class="kpi-val t" id="kv-total">—</div><div class="kpi-lbl">ចំនួនចម្លើយ<br><span style="font-family:'DM Sans',sans-serif">Total Responses</span></div></div>
+    <div class="kpi ka"><div class="kpi-val a" id="kv-month">—</div><div class="kpi-lbl">ខែនេះ<br><span style="font-family:'DM Sans',sans-serif">This Month</span></div></div>
+    <div class="kpi kg"><div class="kpi-val g" id="kv-sat">—</div><div class="kpi-lbl">% ពេញចិត្ត<br><span style="font-family:'DM Sans',sans-serif">% Satisfied (≤2.5)</span></div></div>
+    <div class="kpi kt" style="--kc:var(--Tl)"><div class="kpi-val t" id="kv-depts">—</div><div class="kpi-lbl">ផ្នែក<br><span style="font-family:'DM Sans',sans-serif">Departments</span></div></div>
+  </div>
+
+  <!-- Satisfaction ring + dist -->
+  <div class="card">
+    <div class="chd"><div class="chd-ico ig">🎯</div><div><div class="chd-kh">ការពេញចិត្តរួម</div><div class="chd-en">Overall Satisfaction Index</div></div></div>
+    <div class="cb">
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle class="ring-bg" cx="60" cy="60" r="50"/>
+            <circle class="ring-fill" id="ring-c" cx="60" cy="60" r="50" stroke="#1A7A4A" stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="ring-txt"><div class="ring-pct hi" id="ring-pct">—%</div><div class="ring-sub">satisfied</div></div>
+        </div>
+        <div class="ring-stats">
+          <div class="rs-row"><span class="rs-lbl">Avg score</span><span class="rs-val" id="rs-avg">—/5</span></div>
+          <div class="rs-row"><span class="rs-lbl">Satisfied</span><span class="rs-val" id="rs-satn">—</span></div>
+          <div class="rs-row"><span class="rs-lbl">Period</span><span class="rs-val" id="rs-period">—</span></div>
+          <div class="rs-note">Score 1–2 = Satisfied · 3 = Neutral · 4–5 = Dissatisfied</div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="sec"><div class="sec-t">Score Distribution</div></div>
+      <div id="dist-bars"><div class="loading"><span class="spin spin-dk"></span>Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- Domain radar + bars -->
+  <div class="card">
+    <div class="chd"><div class="chd-ico it">📊</div><div><div class="chd-kh">ពិន្ទុតាមវិស័យ</div><div class="chd-en">Domain Scores — lower is better</div></div></div>
+    <div class="cb">
+      <div class="ch240"><canvas id="ch-radar"></canvas></div>
+      <div class="hr"></div>
+      <div id="dom-bars"><div class="loading"><span class="spin spin-dk"></span></div></div>
+    </div>
+  </div>
+
+  <!-- 6-month trend -->
+  <div class="card">
+    <div class="chd"><div class="chd-ico it">📈</div><div><div class="chd-kh">និន្នាការ 6 ខែ</div><div class="chd-en">6-Month Satisfaction Trend</div></div></div>
+    <div class="cb"><div class="ch200"><canvas id="ch-trend"></canvas></div></div>
+  </div>
+
+  <!-- Top / Bottom departments -->
+  <div class="card">
+    <div class="chd"><div class="chd-ico ia">🏢</div><div><div class="chd-kh">ការពេញចិត្តតាមផ្នែក</div><div class="chd-en">Satisfaction by Department</div></div></div>
+    <div class="cb">
+      <div class="dept-cols">
+        <div><div class="dept-mini-hd b">🏆 Top 5 Most Satisfied</div><div id="dept-best"></div></div>
+        <div><div class="dept-mini-hd w">⚠️ Bottom 5 — Needs Attention</div><div id="dept-worst"></div></div>
+      </div>
+      <div class="hr"></div>
+      <div class="sec"><div class="sec-t">All Departments</div></div>
+      <div class="ch280"><canvas id="ch-dept"></canvas></div>
+    </div>
+  </div>
+
+  <!-- By category -->
+  <div class="card">
+    <div class="chd"><div class="chd-ico it">👥</div><div><div class="chd-kh">ការពេញចិត្តតាមវិជ្ជាជីវៈ</div><div class="chd-en">Satisfaction by Professional Category</div></div></div>
+    <div class="cb"><div class="ch200"><canvas id="ch-cat"></canvas></div></div>
+  </div>
+
+  <!-- Comments -->
+  <div class="card">
+    <div class="chd"><div class="chd-ico ia">💬</div><div><div class="chd-kh">មតិចុងក្រោយ</div><div class="chd-en">Recent Open Comments</div></div></div>
+    <div class="cb" id="cmt-feed"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-2" onclick="loadDash()">🔄 Refresh</button>
+    <button class="btn-a" onclick="doExport()">📥 Excel Export</button>
+    <button class="btn-2" onclick="window.print()">🖨️ Print</button>
+  </div>
+
+</div></div><!-- /dashboard -->
+
+
+<!-- ══ VIEW: RESPONSES (Admin only) ══════════════════ -->
+<div class="view" id="v-responses"><div class="vi">
+
+  <div class="flt-row">
+    <div class="sw"><select id="rf-dept" onchange="applyFlt()"><option value="">ផ្នែកទាំងអស់ / All Depts</option></select></div>
+    <div class="sw"><select id="rf-month" onchange="applyFlt()"><option value="">ខែទាំងអស់ / All Months</option></select></div>
+    <div class="sw"><select id="rf-cat" onchange="applyFlt()"><option value="">វិជ្ជាជីវៈទាំងអស់ / All Categories</option></select></div>
+  </div>
+  <div id="resp-wrap"></div>
+
+</div></div><!-- /responses -->
+
+
+<!-- ══ VIEW: ADMIN ════════════════════════════════════ -->
+<div class="view" id="v-admin"><div class="vi">
+
+  <!-- LOGIN GATE — visible until authenticated -->
+  <div id="adm-gate">
+    <div class="card" style="max-width:400px;margin:24px auto 12px">
+      <div style="text-align:center;padding:26px 20px 16px">
+        <div class="gate-ico">🔐</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:5px">Admin Access Only</div>
+        <div class="txt-sm">Staff use the <strong>Survey</strong> tab only. Enter the admin password to unlock the Dashboard, Responses, and Admin tools.</div>
+      </div>
+      <div class="cb">
+        <div id="adm-msg"></div>
+        <div class="fld"><label class="flbl">Password / ពាក្យសម្ងាត់</label><input type="password" id="adm-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn-sub mt8" onclick="doLogin()"><span>🔓</span><span>Unlock Admin</span></button>
+        <p class="txt-sm mt8" style="text-align:center">Default password: <strong>kcph2026</strong></p>
+      </div>
+    </div>
+
+    <!-- Role explanation -->
+    <div class="card" style="max-width:400px;margin:0 auto">
+      <div class="chd"><div class="chd-ico it">👁️</div><div><div class="chd-kh">តួនាទី — Role Definitions</div><div class="chd-en">What each role can access</div></div></div>
+      <div class="cb">
+        <div class="role-grid">
+          <div class="role-box" style="background:var(--Txl)">
+            <div class="role-emo">👤</div>
+            <div class="role-title" style="color:var(--Td)">Staff / បុគ្គលិក</div>
+            <div class="role-list">✅ Fill survey anonymously<br>❌ No data access<br>❌ No dashboard<br>❌ No responses view</div>
+          </div>
+          <div class="role-box" style="background:var(--Axl)">
+            <div class="role-emo">🔐</div>
+            <div class="role-title" style="color:var(--Ad)">Admin / គ្រប់គ្រង</div>
+            <div class="role-list">✅ Fill survey<br>✅ Full dashboard<br>✅ Browse all responses<br>✅ Export to Excel<br>✅ Admin panel</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL — shown after login -->
+  <div id="adm-panel" style="display:none">
+    <div class="card">
+      <div class="chd"><div class="chd-ico ig">✅</div><div><div class="chd-kh">CHAS HR.9 Compliance</div><div class="chd-en">Accreditation standard requirements</div></div></div>
+      <div class="cb0" style="padding:0 15px">
+        <div class="comp-row"><span class="comp-code">HR.9.1</span><span class="comp-txt">Annual staff satisfaction survey conducted across all departments</span></div>
+        <div class="comp-row"><span class="comp-code">HR.9.2</span><span class="comp-txt">Results analyzed by domain, department, and professional category</span></div>
+        <div class="comp-row"><span class="comp-code">HR.9.3</span><span class="comp-txt">Findings shared with all staff and hospital leadership</span></div>
+        <div class="comp-row"><span class="comp-code">HR.9.4</span><span class="comp-txt">Improvement actions documented in CAPA format and implemented</span></div>
+        <div class="comp-row"><span class="comp-code">HR.9.5</span><span class="comp-txt">Follow-up survey conducted to verify effectiveness of actions</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chd"><div class="chd-ico ia">📌</div><div><div class="chd-kh">ព័ត៌មានប្រព័ន្ធ</div><div class="chd-en">System Information</div></div></div>
+      <div class="cb">
+        <div class="txt-sm" style="line-height:2.2;color:var(--ink2)">
+          <div>🏥 Kampong Chhnang Provincial Hospital (CPA3)</div>
+          <div>📋 Standard: CHAS HR.9 — Staff Satisfaction</div>
+          <div>🗓️ Period: <span id="adm-period">—</span></div>
+          <div>🌐 Language: Bilingual Khmer / English</div>
+          <div>🏢 32 departments · 15 Likert questions + open comments</div>
+          <div>🔒 Anonymous — no names collected</div>
+          <div>💾 Backend: Google Apps Script + Google Sheets</div>
+        </div>
+        <div class="btn-row mt12">
+          <button class="btn-2" onclick="gT('dashboard')">📊 Dashboard</button>
+          <button class="btn-a" onclick="doExport()">📥 Export Excel</button>
+          <button class="btn-2" onclick="window.print()">🖨️ Print</button>
+          <button class="btn-2" onclick="doLogout()" style="color:var(--R);border-color:var(--R)">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div></div><!-- /admin -->
+<script>
+/* ═══════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════ */
+const API='https://script.google.com/macros/s/AKfycbxtz6oztCig5Nnz5jL6soDIQ1yAV1OQPLwuCkELYhJYu87ApCaWcej15vcSBaik1aUh/exec';
+const PWKEY='kcph_a';
+const DEPTS=['ផ្នែកការិយាល័យរដ្ឋបាល-បុគ្គលិក','ផ្នែកគណនេយ្យ និងហិរញ្ញវត្ថុ','ផ្នែកការិយាល័យបច្ចេកទេស','ផ្នែកពិគ្រោះជំងឺក្រៅ','ផ្នែកសល្យាគារ','ផ្នែករបួសសល្យសាស្ត្រ ក','ផ្នែករបួលសល្យសាស្ត្រ ខ','ផ្នែកជំងឺទូទៅ','ផ្នែកសង្រ្គោះបន្ទាន់កម្រិតធ្ងន់','ផ្នែកសង្រ្គោះបន្ទាន់','ផ្នែកសម្ភព','ផ្នែករោគស្រ្តី','ផ្នែកជំងឺកុមារ','ផ្នែកចក្ខុរោគ','ផ្នែកមន្ទីរពិសោធន៍ និងផ្តល់ឈាម','ផ្នែកឃ្លាំងឱសថ និងបរិក្ខារពេទ្យ','ផ្នែកជំងឺរបេង','ផ្នែកទឹកនោមផ្អែម និងលើសសម្ពាធឈាម (ជំងឺមិនឆ្លង)','ផ្នែកសុខភាពផ្លូវចិត្ត','ផ្នែកសុខភាពមាត់ធ្មេញ','ផ្នែកព្យាបាលចលនា','ផ្នែកអេកូ-ថតឆ្លុះ (X-Ray)','ផ្នែកប្រព័ន្ធព័ត៌មានសុខាភិបាល (PMRS)','ផ្នែក OI / ART (ថែទាំ និងព្យាបាលអ្នកជំងឺអេដស៍)','ផ្នែកគ្លីនិកសុខភាពគ្រួសារ','ផ្នែករោងជាង និងជួសជុល','ផ្នែកសង្គ្រោះទារក','ផ្នែកលាងឈាម','ផ្នែកត្រចៀក ច្រមុះ បំពង់ក','ផ្នែកប្រព័ន្ធឌីជីថល','ផ្នែករម្ងាប់មេរោគរួម','ផ្នែកគេហកិច្ច បោកគក់ និងផ្ទះបាយ'];
+const LKN=['we1','we2','we3','mg1','mg2','mg3','tr1','tr2','tr3','cp1','cp2','wl1','wl2','ov1','ov2'];
+const DM={0:{ids:['f-dept','f-cat','f-years']},1:{n:['we1','we2','we3']},2:{n:['mg1','mg2','mg3']},3:{n:['tr1','tr2','tr3']},4:{n:['cp1','cp2','wl1','wl2','ov1','ov2']}};
+
+/* ═══════════════════════════════════════════════════
+   AUTH
+   - Staff: sees Survey tab only. No data. No password.
+   - Admin: password-protected. Unlocks Dashboard,
+     Responses, and Admin panel for the session.
+     Session stored in sessionStorage.
+═══════════════════════════════════════════════════ */
+let isAdm=false;
+function getPw(){try{return sessionStorage.getItem(PWKEY)||'';}catch(e){return '';}}
+
+async function doLogin(){
+  const pw=document.getElementById('adm-pw').value; if(!pw) return;
+  try{
+    await callAPI('summary',{},pw); // throws AUTH_FAILED if wrong
+    sessionStorage.setItem(PWKEY,pw); unlockAdmin();
+  }catch(e){
+    if(e.message==='AUTH_FAILED'){
+      document.getElementById('adm-msg').innerHTML='<div class="alert ae"><span class="a-ico">❌</span><div>Incorrect password. Default: <strong>kcph2026</strong></div></div>';
+    } else {
+      // Non-auth error (empty sheet etc) — pw accepted
+      sessionStorage.setItem(PWKEY,pw); unlockAdmin();
+    }
+  }
+}
+
+function unlockAdmin(){
+  isAdm=true;
+  document.getElementById('adm-gate').style.display='none';
+  document.getElementById('adm-panel').style.display='block';
+  document.querySelectorAll('.adm-only').forEach(el=>el.style.display='flex');
+  const now=new Date();
+  const el=document.getElementById('adm-period');
+  if(el) el.textContent='Q'+Math.ceil((now.getMonth()+1)/3)+' '+now.getFullYear();
+  gT('dashboard');
+}
+
+function doLogout(){
+  isAdm=false;
+  try{sessionStorage.removeItem(PWKEY);}catch(e){}
+  document.querySelectorAll('.adm-only').forEach(el=>el.style.display='none');
+  document.getElementById('adm-gate').style.display='block';
+  document.getElementById('adm-panel').style.display='none';
+  document.getElementById('adm-pw').value='';
+  document.getElementById('adm-msg').innerHTML='';
+  gT('survey');
+}
+
+// Restore session on load
+(function(){const pw=getPw();if(pw){isAdm=true;unlockAdmin();}})();
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+function gT(tab){
+  if(['dashboard','responses'].includes(tab)&&!isAdm){gT('admin');return;}
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('v-'+tab).classList.add('on');
+  const nb=document.getElementById('nb-'+tab); if(nb) nb.classList.add('on');
+  const lw=document.getElementById('lotus');
+  if(lw) lw.style.display=tab==='survey'?'':'none';
+  if(tab==='dashboard') loadDash();
+  if(tab==='responses') loadResp(true);
+}
+
+/* ═══════════════════════════════════════════════════
+   LOTUS PROGRESS
+═══════════════════════════════════════════════════ */
+function sDone(s){
+  if(s===0) return DM[0].ids.every(id=>{const e=document.getElementById(id);return e&&e.value;});
+  return DM[s].n.every(n=>document.querySelector('input[name="'+n+'"]:checked'));
+}
+function upP(){
+  for(let i=0;i<=4;i++){
+    const el=document.getElementById('ls'+i); if(!el) continue;
+    const done=sDone(i),active=!done&&(i===0||sDone(i-1));
+    el.classList.toggle('done',done); el.classList.toggle('active',active);
+    const e=el.querySelector('ellipse'); if(!e) continue;
+    if(done){e.setAttribute('fill','rgba(232,146,42,.85)');e.setAttribute('stroke','#E8922A');}
+    else if(active){e.setAttribute('fill','rgba(255,255,255,.2)');e.setAttribute('stroke','rgba(255,255,255,.6)');}
+    else{e.setAttribute('fill','rgba(255,255,255,.08)');e.setAttribute('stroke','rgba(255,255,255,.2)');}
+  }
+}
+function onL(n){const it=document.getElementById('qi-'+n);if(it)it.classList.add('ans');upP();}
+
+/* ═══════════════════════════════════════════════════
+   API  — 30s timeout, auto-sends admin password
+═══════════════════════════════════════════════════ */
+async function callAPI(action,obj={},pw=''){
+  const p=new URLSearchParams({action});
+  const usePw=pw||(isAdm?getPw():'');
+  if(usePw) p.set('adminpw',usePw);
+  if(Object.keys(obj).length) p.set('payload',encodeURIComponent(JSON.stringify(obj)));
+  const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),30000);
+  try{
+    const res=await fetch(API+'?'+p,{signal:ctrl.signal});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    if(!json.ok) throw new Error(json.error||'Server error');
+    return json.data;
+  }finally{clearTimeout(t);}
+}
+
+/* ═══════════════════════════════════════════════════
+   SURVEY
+═══════════════════════════════════════════════════ */
+function gR(n){const e=document.querySelector('input[name="'+n+'"]:checked');return e?+e.value:null;}
+function validate(){
+  if(!document.getElementById('f-dept').value) return 'សូមជ្រើសផ្នែក / Please select department.';
+  if(!document.getElementById('f-cat').value)  return 'សូមជ្រើសវិជ្ជាជីវៈ / Please select category.';
+  if(!document.getElementById('f-years').value) return 'សូមជ្រើសឆ្នាំ / Please select years of service.';
+  for(const n of LKN){
+    if(gR(n)===null){
+      const it=document.getElementById('qi-'+n);
+      if(it) it.scrollIntoView({behavior:'smooth',block:'center'});
+      return 'សូមឆ្លើយគ្រប់សំណួរ / Please answer all questions.';
+    }
+  }
+  return null;
+}
+
+async function doSub(){
+  const err=validate();
+  if(err){
+    const el=document.getElementById('s-msg');
+    el.innerHTML='<div class="alert ae"><span class="a-ico">⚠️</span><div>'+err+'</div></div>';
+    el.scrollIntoView({behavior:'smooth',block:'nearest'}); return;
+  }
+  document.getElementById('s-msg').innerHTML='';
+  const btn=document.getElementById('btn-sub');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span><span>កំពុងផ្ញើ…</span>';
+  const py={dept:document.getElementById('f-dept').value,category:document.getElementById('f-cat').value,years:document.getElementById('f-years').value,gender:document.getElementById('f-gender').value,we1:gR('we1'),we2:gR('we2'),we3:gR('we3'),mg1:gR('mg1'),mg2:gR('mg2'),mg3:gR('mg3'),tr1:gR('tr1'),tr2:gR('tr2'),tr3:gR('tr3'),cp1:gR('cp1'),cp2:gR('cp2'),wl1:gR('wl1'),wl2:gR('wl2'),ov1:gR('ov1'),ov2:gR('ov2'),comments:document.getElementById('f-comments').value.trim()};
+  try{
+    const r=await callAPI('create',py,''); // public — no pw needed
+    document.getElementById('suc-id').textContent='Reference ID: '+(r&&r.id?r.id:'SS'+Date.now());
+    document.getElementById('suc').classList.add('show');
+    resetForm();
+  }catch(e){
+    document.getElementById('s-msg').innerHTML='<div class="alert ae"><span class="a-ico">❌</span><div>ការបញ្ជូនបានបរាជ័យ / Submission failed.<br><small>'+e.message+'</small></div></div>';
+  }finally{btn.disabled=false;btn.innerHTML='<span>📤</span><span>បញ្ជូន — Submit Survey</span>';}
+}
+
+function resetForm(){
+  ['f-dept','f-cat','f-years','f-gender'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  LKN.forEach(n=>document.querySelectorAll('input[name="'+n+'"]').forEach(r=>r.checked=false));
+  document.getElementById('f-comments').value='';
+  document.querySelectorAll('.lki').forEach(i=>i.classList.remove('ans'));
+  upP();
+}
+function closeSuc(){document.getElementById('suc').classList.remove('show');window.scrollTo({top:0,behavior:'smooth'});}
+
+/* ═══════════════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════════════ */
+let cR=null,cT=null,cD=null,cC=null;
+
+function sEl(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function cc(s){return s<=2.5?'chi':s<=3.5?'chm':'chl';}
+
+async function loadDash(){
+  ['kv-total','kv-month','kv-sat','kv-depts'].forEach(id=>sEl(id,'…'));
+  sEl('ring-pct','…');
+  const db=document.getElementById('dom-bars');if(db)db.innerHTML='<div class="loading"><span class="spin spin-dk"></span>Loading…</div>';
+  const cf=document.getElementById('cmt-feed');if(cf)cf.innerHTML='';
+  try{
+    const d=await callAPI('summary');
+    renderDash(d);
+  }catch(e){
+    const em='<div class="alert ae" style="margin:0"><span class="a-ico">❌</span><div>'+e.message+'<br><button class="btn-2" style="margin-top:6px;font-size:11px" onclick="loadDash()">🔄 Retry</button></div></div>';
+    ['dom-bars','dist-bars','cmt-feed'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=em;});
+    ['kv-total','kv-month','kv-sat','kv-depts'].forEach(id=>sEl(id,'—'));
+    sEl('ring-pct','—');
+  }
+}
+
+function renderDash(d){
+  const tot=d.total||0,mon=d.thisMonth||0,dep=d.depts||0;
+  const avg=parseFloat(d.avgScore||0),sat=d.satisfiedPct||0,satN=d.satisfiedN||0;
+  const dist=d.dist||[0,0,0,0,0];
+  const doms=d.domains||[],byD=d.byDept||[],byC=d.byCat||[],cmts=d.comments||[];
+  const trnd=d.trend||{labels:[],satisfied:[],counts:[]};
+
+  sEl('kv-total',tot); sEl('kv-month',mon); sEl('kv-sat',sat+'%'); sEl('kv-depts',dep);
+
+  // Ring
+  const rp=document.getElementById('ring-pct');
+  if(rp){rp.textContent=sat+'%';rp.className='ring-pct '+(sat>=70?'hi':sat>=50?'md':'lo');}
+  const rc=document.getElementById('ring-c');
+  if(rc){
+    const circ=314,off=circ-circ*sat/100;
+    rc.style.strokeDashoffset=String(circ);
+    rc.setAttribute('stroke',sat>=70?'#1A7A4A':sat>=50?'#E8922A':'#C53030');
+    setTimeout(()=>rc.style.strokeDashoffset=String(off),150);
+  }
+  sEl('rs-avg',(avg||0).toFixed(2)+'/5');
+  sEl('rs-satn',satN+' / '+tot+' staff');
+  const now=new Date(); sEl('rs-period','Q'+Math.ceil((now.getMonth()+1)/3)+' '+now.getFullYear());
+
+  // Distribution bars
+  const dmax=Math.max(...dist,1);
+  const dcols=['#1A7A4A','#4CAF50','#E8922A','#E64A19','#B71C1C'];
+  const dcls=['d1','d2','d3','d4','d5'];
+  const dbEl=document.getElementById('dist-bars');
+  if(dbEl) dbEl.innerHTML=dist.map((n,i)=>`<div class="dist-row"><div class="dist-lbl" style="color:${dcols[i]}">${i+1}★</div><div class="dist-track"><div class="dist-fill ${dcls[i]}" style="width:${Math.round(n/dmax*100)}%"></div></div><div class="dist-n">${n}</div></div>`).join('');
+
+  // Domain bars
+  const dmEl=document.getElementById('dom-bars');
+  if(dmEl) dmEl.innerHTML=doms.length?doms.map(d=>{
+    const lbl=d.label.includes('/')?d.label.split('/')[0].trim():d.label;
+    const pct=Math.round(((5-(d.score||0))/4)*100);
+    return `<div class="dom-bar-row"><div class="dom-bar-lbl">${lbl}</div><div class="dom-bar-track"><div class="dom-bar-fill" style="width:${pct}%"></div></div><div class="dom-bar-score">${(d.score||0).toFixed(1)}</div></div>`;
+  }).join(''):'<div class="empty"><div class="empty-ico">📊</div><p>No data yet</p></div>';
+
+  // Radar
+  if(cR){cR.destroy();cR=null;}
+  const rEl=document.getElementById('ch-radar');
+  if(rEl&&doms.length){
+    cR=new Chart(rEl,{
+      type:'radar',
+      data:{labels:doms.map(d=>d.label.includes('/')?d.label.split('/')[0].trim():d.label),datasets:[{label:'Avg Score',data:doms.map(d=>d.score||0),borderColor:'#0B5E63',backgroundColor:'rgba(11,94,99,.12)',borderWidth:2,pointBackgroundColor:'#E8922A',pointRadius:4,pointBorderColor:'#fff',pointBorderWidth:1.5}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:1,max:5,ticks:{stepSize:1,font:{size:10,family:'DM Sans'}},pointLabels:{font:{size:10,family:'DM Sans,sans-serif'}},grid:{color:'rgba(0,0,0,.06)'},angleLines:{color:'rgba(0,0,0,.08)'}}}}
+    });
+  }
+
+  // Trend
+  if(cT){cT.destroy();cT=null;}
+  const tEl=document.getElementById('ch-trend');
+  if(tEl&&trnd.labels.length){
+    cT=new Chart(tEl,{
+      type:'line',
+      data:{labels:trnd.labels,datasets:[
+        {label:'% Satisfied',data:trnd.satisfied,borderColor:'#0B5E63',backgroundColor:'rgba(11,94,99,.08)',fill:true,tension:.45,pointBackgroundColor:'#E8922A',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5,yAxisID:'y'},
+        {label:'Responses',data:trnd.counts,borderColor:'rgba(232,146,42,.55)',borderDash:[4,4],tension:.3,pointRadius:3,yAxisID:'y2'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,labels:{font:{family:'DM Sans',size:11},boxWidth:12}}},
+        scales:{
+          y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.04)'},border:{display:false}},
+          y2:{position:'right',min:0,grid:{display:false},border:{display:false},ticks:{font:{family:'DM Sans',size:10}}},
+          x:{grid:{display:false},border:{display:false}}
+        }
+      }
+    });
+  }
+
+  // Top/Bottom depts
+  const best=byD.slice(0,5), worst=[...byD].reverse().slice(0,5);
+  const bestEl=document.getElementById('dept-best'),worstEl=document.getElementById('dept-worst');
+  const dRow=(d)=>`<div class="dept-mini-row"><div class="dept-mini-name">${d.dept.replace('ផ្នែក','')}</div><span class="chip ${cc(d.score)}">${(d.score||0).toFixed(1)}</span></div>`;
+  if(bestEl) bestEl.innerHTML=best.map(dRow).join('')||'<div class="txt-sm" style="padding:8px 0">No data</div>';
+  if(worstEl) worstEl.innerHTML=worst.map(dRow).join('')||'<div class="txt-sm" style="padding:8px 0">No data</div>';
+
+  // All-dept chart
+  if(cD){cD.destroy();cD=null;}
+  const dEl=document.getElementById('ch-dept');
+  if(dEl&&byD.length){
+    cD=new Chart(dEl,{
+      type:'bar',
+      data:{labels:byD.map(d=>d.dept.replace('ផ្នែក','')),datasets:[{data:byD.map(d=>d.score||0),backgroundColor:byD.map(d=>d.score<=2.5?'rgba(26,122,74,.75)':d.score<=3.5?'rgba(232,146,42,.75)':'rgba(197,48,48,.75)'),borderRadius:4,borderSkipped:false}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:1,max:5,grid:{color:'rgba(0,0,0,.04)'},border:{display:false}},y:{grid:{display:false},border:{display:false},ticks:{font:{size:10,family:'DM Sans'}}}}}
+    });
+  }
+
+  // Category chart
+  if(cC){cC.destroy();cC=null;}
+  const cEl=document.getElementById('ch-cat');
+  if(cEl&&byC.length){
+    cC=new Chart(cEl,{
+      type:'bar',
+      data:{labels:byC.map(c=>(c.cat||'').split('/')[1]?.trim()||(c.cat||'')),datasets:[{data:byC.map(c=>c.score||0),backgroundColor:byC.map(c=>c.score<=2.5?'rgba(11,94,99,.75)':c.score<=3.5?'rgba(232,146,42,.75)':'rgba(197,48,48,.75)'),borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:1,max:5,grid:{color:'rgba(0,0,0,.04)'},border:{display:false}},x:{grid:{display:false},border:{display:false},ticks:{font:{size:10,family:'DM Sans'}}}}}
+    });
+  }
+
+  // Comments
+  const cfEl=document.getElementById('cmt-feed');
+  if(cfEl) cfEl.innerHTML=cmts.length?cmts.map(c=>`<div class="cmt"><div class="cmt-txt">${String(c.text||'').replace(/</g,'&lt;')}</div><div class="cmt-meta">${String(c.dept||'').replace('ផ្នែក','')} · ${c.date||''}</div></div>`).join(''):'<div class="empty"><div class="empty-ico">💬</div><p>No comments yet</p></div>';
+
+  window._rows=null; // invalidate response cache
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSES
+═══════════════════════════════════════════════════ */
+let _rows=null;
+
+async function loadResp(force){
+  const wrap=document.getElementById('resp-wrap'); if(!wrap) return;
+  if(!_rows||force){
+    wrap.innerHTML='<div class="loading"><span class="spin spin-dk"></span>Loading responses…</div>';
+    try{
+      _rows=await callAPI('list',{});
+      populateFlt(_rows);
+    }catch(e){
+      wrap.innerHTML='<div class="alert ae"><span class="a-ico">❌</span><div>'+e.message+'<br><button class="btn-2" style="margin-top:6px;font-size:11px" onclick="loadResp(true)">🔄 Retry</button></div></div>';
+      return;
+    }
+  }
+  applyFlt();
+}
+
+function populateFlt(rows){
+  const depts=[...new Set(rows.map(r=>r.Dept||''))].filter(Boolean).sort();
+  const cats=[...new Set(rows.map(r=>r.Category||''))].filter(Boolean).sort();
+  const months=[...new Set(rows.map(r=>{
+    const ts=String(r.Timestamp||'');
+    const m=ts.match(/(\d{4}-\d{2})/);if(m)return m[1];
+    const m2=ts.match(/(\d{1,2})\/\d{1,2}\/(\d{4})/);if(m2)return m2[2]+'-'+m2[1].padStart(2,'0');
+    return '';
+  }))].filter(Boolean).sort().reverse();
+
+  function setOpts(id,opts){
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value,def=el.options[0];
+    el.innerHTML='';el.appendChild(def);
+    opts.forEach(o=>{const op=new Option(o,o);if(o===cur)op.selected=true;el.add(op);});
+  }
+  setOpts('rf-dept',depts);
+  setOpts('rf-month',months);
+  setOpts('rf-cat',cats);
+}
+
+function applyFlt(){
+  if(!_rows)return;
+  const dF=(document.getElementById('rf-dept')||{}).value||'';
+  const mF=(document.getElementById('rf-month')||{}).value||'';
+  const cF=(document.getElementById('rf-cat')||{}).value||'';
+  let rows=_rows.filter(r=>{
+    if(dF&&(r.Dept||'')!==dF)return false;
+    if(cF&&(r.Category||'')!==cF)return false;
+    if(mF&&!String(r.Timestamp||'').includes(mF))return false;
+    return true;
+  });
+  renderResp(rows);
+}
+
+function renderResp(rows){
+  const wrap=document.getElementById('resp-wrap');if(!wrap)return;
+  if(!rows.length){wrap.innerHTML='<div class="empty"><div class="empty-ico">📭</div><p>No responses match this filter.</p></div>';return;}
+  wrap.innerHTML=`<div class="card">
+    <div class="chd"><div class="chd-ico it">📋</div><div><div class="chd-kh">ចម្លើយ (${rows.length})</div><div class="chd-en">Survey Responses</div></div><button class="btn-2" style="margin-left:auto;font-size:11px;padding:5px 10px" onclick="loadResp(true)">🔄</button></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>#</th><th>ថ្ងៃ</th><th>ផ្នែក</th><th>វិជ្ជាជីវៈ</th><th>ឆ្នាំ</th><th>Score</th><th>WE</th><th>MG</th><th>TR</th><th>CP</th><th>WL</th><th>OV</th><th>Comment</th></tr></thead>
+      <tbody>${rows.map((r,i)=>{
+        const s=parseFloat(r.AvgScore||0);
+        return '<tr><td style="color:var(--ink4);font-family:DM Sans,sans-serif">'+(i+1)+'</td><td style="white-space:nowrap;font-family:DM Sans,sans-serif;font-size:11px">'+(r.Timestamp||'—')+'</td><td style="font-size:11px">'+((r.Dept||'—').replace('ផ្នែក',''))+'</td><td style="font-family:DM Sans,sans-serif;font-size:10px">'+((r.Category||'—').split('/')[1]?.trim()||r.Category||'—')+'</td><td style="font-family:DM Sans,sans-serif;font-size:10px">'+((r.Years||'—').split('/')[0]?.trim()||'—')+'</td><td><span class="chip '+cc(s)+'">'+(s?s.toFixed(1):'—')+'</span></td><td style="font-family:DM Sans,sans-serif;font-size:11px;text-align:center">'+(r.DomainWE||'—')+'</td><td style="font-family:DM Sans,sans-serif;font-size:11px;text-align:center">'+(r.DomainMG||'—')+'</td><td style="font-family:DM Sans,sans-serif;font-size:11px;text-align:center">'+(r.DomainTR||'—')+'</td><td style="font-family:DM Sans,sans-serif;font-size:11px;text-align:center">'+(r.DomainCP||'—')+'</td><td style="font-family:DM Sans,sans-serif;font-size:11px;text-align:center">'+(r.DomainWL||'—')+'</td><td style="font-family:DM Sans,sans-serif;font-size:11px;text-align:center">'+(r.DomainOV||'—')+'</td><td style="max-width:140px;font-size:10px;color:var(--ink3)">'+String(r.Comments||'').replace(/</g,'&lt;')+'</td></tr>';
+      }).join('')}</tbody>
+    </table></div></div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════════════════ */
+async function doExport(){
+  let rows=_rows;
+  if(!rows||!rows.length){
+    try{rows=await callAPI('list',{});}catch(e){alert('Export failed: '+e.message);return;}
+  }
+  if(!rows||!rows.length){alert('No data to export yet.');return;}
+  const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Staff Satisfaction');
+  XLSX.writeFile(wb,'KCPH_StaffSatisfaction_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+upP();
+// Pre-fill dept filter in responses tab
+const rfd=document.getElementById('rf-dept');
+if(rfd) rfd.innerHTML='<option value="">ផ្នែកទាំងអស់ / All Depts</option>'+DEPTS.map(d=>'<option>'+d+'</option>').join('');
+</script>
+</body>
+</html>
