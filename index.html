@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KCPH · ការស្ទង់ពិពណ៌នាការពេញចិត្តបុគ្គលិក</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Khmer:wght@600;700;900&family=Noto+Sans+Khmer:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+/* ════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════ */
+:root {
+  --forest:    #0B5E63;
+  --forest-d:  #083E42;
+  --forest-m:  #0D7377;
+  --forest-l:  #13929A;
+  --forest-xl: #E0F4F5;
+  --amber:     #E8922A;
+  --amber-d:   #C47820;
+  --amber-l:   #FEF3E2;
+  --ink:       #111E27;
+  --ink-2:     #2D3F4F;
+  --ink-3:     #5A6F82;
+  --ink-4:     #8FA3B2;
+  --line:      #D4E3E8;
+  --bg:        #F4F9FA;
+  --white:     #FFFFFF;
+  --red:       #C53030;
+  --green:     #1A7A4A;
+  --r:         12px;
+  --r-sm:      8px;
+  --shadow-sm: 0 1px 4px rgba(11,94,99,.08);
+  --shadow:    0 4px 20px rgba(11,94,99,.12);
+  --shadow-lg: 0 8px 40px rgba(11,94,99,.18);
+}
+
+/* ════════════════════════════════════════
+   RESET & BASE
+════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Noto Sans Khmer', 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 80px; /* space for bottom nav */
+  font-size: 14px;
+  line-height: 1.6;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* ════════════════════════════════════════
+   HERO HEADER
+════════════════════════════════════════ */
+.hero {
+  background: linear-gradient(160deg, var(--forest-d) 0%, var(--forest) 55%, var(--forest-l) 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 28px 20px 32px;
+}
+
+/* Subtle woven pattern overlay */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 12px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 12px);
+  pointer-events: none;
+}
+
+/* Amber accent arc */
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,146,42,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.hero-logo {
+  width: 54px; height: 54px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  padding: 6px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+.hero-logo-placeholder {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+}
+
+.hero-org { flex: 1; min-width: 0; }
+.hero-facility {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hero-chas {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  background: rgba(232,146,42,0.2);
+  border: 1px solid rgba(232,146,42,0.4);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #FFD080;
+}
+.hero-chas-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+
+.hero-title {
+  font-family: 'Noto Serif Khmer', serif;
+  font-size: clamp(20px, 5vw, 26px);
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.hero-subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  font-weight: 400;
+}
+
+/* ── LOTUS PROGRESS ── */
+.lotus-progress {
+  margin-top: 20px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--r);
+  padding: 14px 16px;
+}
+.lotus-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.lotus-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.lotus-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+.lotus-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.15);
+  z-index: 0;
+  transition: background 0.4s;
+}
+.lotus-step.done:not(:last-child)::after { background: var(--amber); }
+
+.lotus-petal {
+  width: 32px; height: 32px;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.lotus-petal svg { width: 100%; height: 100%; transition: all 0.5s cubic-bezier(.34,1.56,.64,1); }
+.lotus-step-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 52px;
+  transition: color 0.3s;
+}
+.lotus-step.done .lotus-step-label { color: rgba(255,255,255,0.85); }
+.lotus-step.active .lotus-step-label { color: #FFD080; font-weight: 600; }
+
+/* ════════════════════════════════════════
+   BOTTOM NAVIGATION
+════════════════════════════════════════ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--line);
+  display: flex;
+  z-index: 200;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bnav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 4px 8px;
+  gap: 3px;
+  transition: all 0.2s;
+  color: var(--ink-4);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  position: relative;
+}
+.bnav-btn.active { color: var(--forest); }
+.bnav-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 25%; right: 25%;
+  height: 2.5px;
+  border-radius: 0 0 3px 3px;
+  background: var(--forest);
+}
+.bnav-icon { font-size: 20px; line-height: 1; }
+
+/* ════════════════════════════════════════
+   VIEWS
+════════════════════════════════════════ */
+.view { display: none; }
+.view.active { display: block; }
+.view-inner { max-width: 700px; margin: 0 auto; padding: 16px 14px; }
+
+/* ════════════════════════════════════════
+   CARDS
+════════════════════════════════════════ */
+.card {
+  background: var(--white);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(212,227,232,0.6);
+  transition: box-shadow 0.2s;
+}
+.card:focus-within { box-shadow: var(--shadow); }
+
+.card-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-header-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.icon-bg-teal { background: var(--forest-xl); }
+.icon-bg-amber { background: var(--amber-l); }
+.card-header-text { flex: 1; min-width: 0; }
+.card-header-kh { font-size: 13px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+.card-header-en { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-3); font-weight: 400; }
+
+.card-body { padding: 16px; }
+.card-body-tight { padding: 12px 16px; }
+
+/* ════════════════════════════════════════
+   FORM ELEMENTS
+════════════════════════════════════════ */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+.field-label .en { font-family: 'DM Sans', sans-serif; color: var(--ink-3); font-weight: 400; }
+.req { color: var(--amber); margin-left: 2px; }
+
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--ink-3);
+  pointer-events: none;
+}
+select, input[type="text"], textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--white);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+select { padding-right: 36px; }
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px rgba(11,94,99,0.1);
+}
+textarea { resize: vertical; min-height: 90px; line-height: 1.7; }
+
+/* ════════════════════════════════════════
+   LIKERT SCALE — THE SIGNATURE ELEMENT
+════════════════════════════════════════ */
+.likert-domain {
+  margin-bottom: 4px;
+}
+.domain-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 8px;
+  background: linear-gradient(90deg, var(--forest-xl), transparent);
+  border-bottom: 1px solid var(--line);
+}
+.domain-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--forest-m);
+  background: var(--forest-xl);
+  border: 1.5px solid var(--forest-l);
+  border-radius: 6px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+.domain-title-kh { font-size: 12px; font-weight: 700; color: var(--forest-d); }
+.domain-title-en { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-3); }
+
+.scale-legend-top {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: var(--ink-4);
+  font-style: italic;
+}
+
+.likert-item {
+  padding: 10px 16px 12px;
+  border-bottom: 1px solid rgba(212,227,232,0.5);
+  transition: background 0.15s;
+}
+.likert-item:last-child { border-bottom: none; }
+.likert-item.answered { background: linear-gradient(90deg, rgba(19,146,154,0.03), transparent); }
+
+.likert-q-kh { font-size: 13px; color: var(--ink); font-weight: 500; margin-bottom: 3px; }
+.likert-q-en { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-3); margin-bottom: 9px; }
+
+/* The 5-option row */
+.likert-options {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+.likert-opt-input { display: none; }
+.likert-opt-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 3px;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+  background: var(--white);
+  min-height: 56px;
+  text-align: center;
+}
+.opt-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.opt-kh {
+  font-size: 9px;
+  color: var(--ink-4);
+  line-height: 1.2;
+  transition: color 0.2s;
+}
+/* Color coding */
+.likert-opt-label[data-v="1"] .opt-num { color: #1A7A4A; }
+.likert-opt-label[data-v="2"] .opt-num { color: #4CAF50; }
+.likert-opt-label[data-v="3"] .opt-num { color: #E8922A; }
+.likert-opt-label[data-v="4"] .opt-num { color: #E64A19; }
+.likert-opt-label[data-v="5"] .opt-num { color: #B71C1C; }
+
+.likert-opt-input:checked + .likert-opt-label {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 12px rgba(11,94,99,0.2);
+}
+.likert-opt-input[value="1"]:checked + .likert-opt-label { background:#1A7A4A; border-color:#1A7A4A; }
+.likert-opt-input[value="2"]:checked + .likert-opt-label { background:#4CAF50; border-color:#4CAF50; }
+.likert-opt-input[value="3"]:checked + .likert-opt-label { background:#E8922A; border-color:#E8922A; }
+.likert-opt-input[value="4"]:checked + .likert-opt-label { background:#E64A19; border-color:#E64A19; }
+.likert-opt-input[value="5"]:checked + .likert-opt-label { background:#B71C1C; border-color:#B71C1C; }
+.likert-opt-input:checked + .likert-opt-label .opt-num,
+.likert-opt-input:checked + .likert-opt-label .opt-kh { color: white; }
+
+/* Hover */
+.likert-opt-label:hover { border-color: var(--forest-l); background: var(--forest-xl); }
+.likert-opt-input:checked + .likert-opt-label:hover { transform: translateY(-2px) scale(1.04); }
+
+/* ════════════════════════════════════════
+   ANONYMITY NOTICE
+════════════════════════════════════════ */
+.anon-banner {
+  background: linear-gradient(135deg, var(--amber-l), #FFF8EE);
+  border: 1px solid rgba(232,146,42,0.3);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.anon-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.anon-kh { font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 3px; }
+.anon-en { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink-3); line-height: 1.5; }
+
+/* ════════════════════════════════════════
+   SUBMIT BUTTON
+════════════════════════════════════════ */
+.submit-zone {
+  padding: 16px;
+  background: linear-gradient(160deg, var(--forest-xl) 0%, var(--white) 100%);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 var(--r) var(--r);
+}
+.btn-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--forest), var(--forest-l));
+  color: white;
+  border-radius: var(--r-sm);
+  padding: 14px 24px;
+  font-family: 'Noto Sans Khmer', 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(11,94,99,0.35);
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--amber), var(--amber-d));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-submit:hover::before { opacity: 1; }
+.btn-submit > * { position: relative; z-index: 1; }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-submit:disabled::before { display: none; }
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--forest);
+  border: 1.5px solid var(--forest);
+  border-radius: var(--r-sm);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { background: var(--forest-xl); }
+
+.btn-amber {
+  background: linear-gradient(135deg, var(--amber), var(--amber-d));
+  color: white;
+  border-radius: var(--r-sm);
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(232,146,42,0.3);
+  transition: all 0.2s;
+}
+.btn-amber:hover { background: linear-gradient(135deg, var(--amber-d), #A86518); }
+
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ════════════════════════════════════════
+   SUCCESS SCREEN
+════════════════════════════════════════ */
+.success-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, var(--forest-d) 0%, var(--forest) 100%);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 40px 24px;
+}
+.success-overlay.show { display: flex; }
+.success-lotus { font-size: 72px; animation: bloom 0.8s cubic-bezier(.34,1.56,.64,1); }
+@keyframes bloom {
+  0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.success-title {
+  font-family: 'Noto Serif Khmer', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 20px 0 8px;
+}
+.success-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 6px;
+}
+.success-id {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 32px;
+}
+.success-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: white;
+  border-radius: var(--r-sm);
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
+/* ════════════════════════════════════════
+   ALERTS / TOASTS
+════════════════════════════════════════ */
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.alert-error { background: #FEF0F0; color: #8B1A1A; border: 1px solid #FCCACA; }
+.alert-info  { background: var(--amber-l); color: #7B4A10; border: 1px solid rgba(232,146,42,0.3); }
+.alert-icon  { font-size: 17px; flex-shrink: 0; }
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.kpi-card {
+  background: var(--white);
+  border-radius: var(--r);
+  padding: 16px 14px;
+  border: 1px solid rgba(212,227,232,0.6);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.kpi-teal::before  { background: linear-gradient(90deg, var(--forest), var(--forest-l)); }
+.kpi-amber::before { background: linear-gradient(90deg, var(--amber), #F5C070); }
+.kpi-val {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.kpi-val.teal  { color: var(--forest-m); }
+.kpi-val.amber { color: var(--amber); }
+.kpi-lbl { font-size: 11px; color: var(--ink-3); line-height: 1.3; }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  margin-top: 18px;
+}
+.section-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Domain bars */
+.domain-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+.domain-lbl { font-size: 11px; color: var(--ink-2); width: 130px; flex-shrink: 0; line-height: 1.3; }
+.domain-track { flex: 1; height: 8px; background: var(--forest-xl); border-radius: 99px; overflow: hidden; }
+.domain-fill  { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--forest), var(--forest-l)); transition: width 0.8s cubic-bezier(.25,.46,.45,.94); }
+.domain-score { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--ink-2); width: 30px; text-align: right; }
+
+.chart-wrap { position: relative; height: 220px; margin-top: 12px; }
+.chart-wrap-lg { height: 280px; }
+
+/* Satisfaction meter */
+.sat-meter {
+  text-align: center;
+  padding: 20px 0 12px;
+}
+.sat-pct {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--forest), var(--forest-l));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sat-pct.mid {
+  background: linear-gradient(135deg, var(--amber), var(--amber-d));
+  -webkit-background-clip: text; background-clip: text;
+}
+.sat-pct.low {
+  background: linear-gradient(135deg, #C53030, #E64A19);
+  -webkit-background-clip: text; background-clip: text;
+}
+.sat-sub { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+
+/* ════════════════════════════════════════
+   RESPONSES TABLE
+════════════════════════════════════════ */
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.filter-row .select-wrap { flex: 1; min-width: 130px; }
+
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--r-sm); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 480px; }
+thead tr { background: var(--forest); }
+th { padding: 9px 12px; text-align: left; font-weight: 600; color: white; white-space: nowrap; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.04em; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--line); color: var(--ink-2); }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--forest-xl); }
+
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+}
+.chip-hi  { background: rgba(26,122,74,0.12); color: #1A7A4A; }
+.chip-mid { background: rgba(232,146,42,0.15); color: #C47820; }
+.chip-lo  { background: rgba(197,48,48,0.12); color: #C53030; }
+
+.empty-state { text-align: center; padding: 48px 20px; color: var(--ink-4); }
+.empty-state .e-icon { font-size: 44px; margin-bottom: 12px; }
+.empty-state p { font-size: 13px; font-family: 'DM Sans', sans-serif; }
+
+/* ════════════════════════════════════════
+   ADMIN
+════════════════════════════════════════ */
+.admin-login-card {
+  max-width: 360px;
+  margin: 32px auto;
+}
+.admin-lockup {
+  text-align: center;
+  padding: 28px 20px 20px;
+}
+.admin-lock-icon {
+  width: 60px; height: 60px;
+  background: var(--forest-xl);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 14px;
+  border: 3px solid rgba(13,115,119,0.15);
+}
+.admin-lock-title { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.admin-lock-sub   { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-3); }
+
+.compliance-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.compliance-item:last-child { border-bottom: none; }
+.compliance-code {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--forest-xl);
+  color: var(--forest-d);
+  border-radius: 5px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.compliance-text { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+
+/* ════════════════════════════════════════
+   SPINNER
+════════════════════════════════════════ */
+.spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+}
+.spinner-dark {
+  border-color: rgba(11,94,99,0.2);
+  border-top-color: var(--forest);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-block {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 32px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* ════════════════════════════════════════
+   PRINT
+════════════════════════════════════════ */
+@media print {
+  .hero, .bottom-nav, .btn-row, .btn-submit, .no-print { display: none !important; }
+  body { background: white; padding: 0; }
+  .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  .view { display: block !important; }
+  #view-survey, #view-admin { display: none !important; }
+}
+
+/* ════════════════════════════════════════
+   MISC
+════════════════════════════════════════ */
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.text-sm { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink-3); }
+</style>
+</head>
+<body>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-lotus">🪷</div>
+  <div class="success-title">អរគុណចំពោះការចូលរួម!</div>
+  <div class="success-sub">Thank you — your response has been recorded.</div>
+  <div class="success-id" id="success-id"></div>
+  <button class="success-btn" onclick="closeSuccess()">← Back to Survey</button>
+</div>
+
+<!-- ══ HERO ══════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <img src="data:image/jpeg;base64,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" alt="KCPH Logo" class="hero-logo">
+      <div class="hero-org">
+        <div class="hero-facility">Kampong Chhnang Provincial Hospital · CPA3</div>
+        <div class="hero-chas">
+          <span class="hero-chas-dot"></span> CHAS HR.9 Compliant
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-title">ការស្ទង់ពិពណ៌នាការពេញចិត្តបុគ្គលិក</div>
+    <div class="hero-subtitle">Staff Satisfaction Survey · Annual / Semi-Annual</div>
+
+    <!-- LOTUS STEP TRACKER -->
+    <div class="lotus-progress" id="lotus-progress">
+      <div class="lotus-label">Progress / ដំណើរការ</div>
+      <div class="lotus-track">
+        <div class="lotus-step active" id="lstep-0">
+          <div class="lotus-petal">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="16" cy="16" rx="12" ry="12" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+              <text x="16" y="21" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="DM Sans,sans-serif">👤</text>
+            </svg>
+          </div>
+          <div class="lotus-step-label">ព័ត៌មាន</div>
+        </div>
+        <div class="lotus-step" id="lstep-1">
+          <div class="lotus-petal">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="16" cy="16" rx="12" ry="12" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+              <text x="16" y="21" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.5)" font-family="DM Sans,sans-serif">🏥</text>
+            </svg>
+          </div>
+          <div class="lotus-step-label">បរិស្ថាន</div>
+        </div>
+        <div class="lotus-step" id="lstep-2">
+          <div class="lotus-petal">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="16" cy="16" rx="12" ry="12" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+              <text x="16" y="21" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.5)" font-family="DM Sans,sans-serif">🤝</text>
+            </svg>
+          </div>
+          <div class="lotus-step-label">គ្រប់គ្រង</div>
+        </div>
+        <div class="lotus-step" id="lstep-3">
+          <div class="lotus-petal">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="16" cy="16" rx="12" ry="12" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+              <text x="16" y="21" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.5)" font-family="DM Sans,sans-serif">📚</text>
+            </svg>
+          </div>
+          <div class="lotus-step-label">បណ្តុះ</div>
+        </div>
+        <div class="lotus-step" id="lstep-4">
+          <div class="lotus-petal">
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="16" cy="16" rx="12" ry="12" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+              <text x="16" y="21" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.5)" font-family="DM Sans,sans-serif">⭐</text>
+            </svg>
+          </div>
+          <div class="lotus-step-label">ទូទៅ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ BOTTOM NAV ═════════════════════════ -->
+<nav class="bottom-nav" role="tablist">
+  <button class="bnav-btn active" id="bnav-survey" onclick="switchTab('survey')">
+    <span class="bnav-icon">📝</span>Survey
+  </button>
+  <button class="bnav-btn" id="bnav-dashboard" onclick="switchTab('dashboard')">
+    <span class="bnav-icon">📊</span>Dashboard
+  </button>
+  <button class="bnav-btn" id="bnav-responses" onclick="switchTab('responses')">
+    <span class="bnav-icon">📋</span>Responses
+  </button>
+  <button class="bnav-btn" id="bnav-admin" onclick="switchTab('admin')">
+    <span class="bnav-icon">🔐</span>Admin
+  </button>
+</nav>
+
+<!-- ══ VIEWS ══════════════════════════════ -->
+
+<!-- ─── SURVEY ─── -->
+<div class="view active" id="view-survey">
+<div class="view-inner">
+
+  <div class="anon-banner">
+    <span class="anon-icon">🔒</span>
+    <div>
+      <div class="anon-kh">ការស្ទង់នេះគ្មានឈ្មោះ — Anonymous Survey</div>
+      <div class="anon-en">All responses are confidential and used only for hospital improvement.</div>
+    </div>
+  </div>
+
+  <div id="survey-alert"></div>
+
+  <!-- A: DEMOGRAPHICS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon icon-bg-teal">👤</div>
+      <div class="card-header-text">
+        <div class="card-header-kh">ក. ព័ត៌មានទូទៅ</div>
+        <div class="card-header-en">General Information</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <label class="field-label">ផ្នែក <span class="en">/ Department</span><span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="f-dept" required onchange="updateProgress()">
+            <option value="">— ជ្រើសសរ / Select —</option>
+            <option>ផ្នែកការិយាល័យរដ្ឋបាល-បុគ្គលិក</option>
+            <option>ផ្នែកគណនេយ្យ និងហិរញ្ញវត្ថុ</option>
+            <option>ផ្នែកការិយាល័យបច្ចេកទេស</option>
+            <option>ផ្នែកពិគ្រោះជំងឺក្រៅ</option>
+            <option>ផ្នែកសល្យាគារ</option>
+            <option>ផ្នែករបួសសល្យសាស្ត្រ ក</option>
+            <option>ផ្នែករបួលសល្យសាស្ត្រ ខ</option>
+            <option>ផ្នែកជំងឺទូទៅ</option>
+            <option>ផ្នែកសង្រ្គោះបន្ទាន់កម្រិតធ្ងន់</option>
+            <option>ផ្នែកសង្រ្គោះបន្ទាន់</option>
+            <option>ផ្នែកសម្ភព</option>
+            <option>ផ្នែករោគស្រ្តី</option>
+            <option>ផ្នែកជំងឺកុមារ</option>
+            <option>ផ្នែកចក្ខុរោគ</option>
+            <option>ផ្នែកមន្ទីរពិសោធន៍ និងផ្តល់ឈាម</option>
+            <option>ផ្នែកឃ្លាំងឱសថ និងបរិក្ខារពេទ្យ</option>
+            <option>ផ្នែកជំងឺរបេង</option>
+            <option>ផ្នែកទឹកនោមផ្អែម និងលើសសម្ពាធឈាម (ជំងឺមិនឆ្លង)</option>
+            <option>ផ្នែកសុខភាពផ្លូវចិត្ត</option>
+            <option>ផ្នែកសុខភាពមាត់ធ្មេញ</option>
+            <option>ផ្នែកព្យាបាលចលនា</option>
+            <option>ផ្នែកអេកូ-ថតឆ្លុះ (X-Ray)</option>
+            <option>ផ្នែកប្រព័ន្ធព័ត៌មានសុខាភិបាល (PMRS)</option>
+            <option>ផ្នែក OI / ART (ថែទាំ និងព្យាបាលអ្នកជំងឺអេដស៍)</option>
+            <option>ផ្នែកគ្លីនិកសុខភាពគ្រួសារ</option>
+            <option>ផ្នែករោងជាង និងជួសជុល</option>
+            <option>ផ្នែកសង្គ្រោះទារក</option>
+            <option>ផ្នែកលាងឈាម</option>
+            <option>ផ្នែកត្រចៀក ច្រមុះ បំពង់ក</option>
+            <option>ផ្នែកប្រព័ន្ធឌីជីថល</option>
+            <option>ផ្នែករម្ងាប់មេរោគរួម</option>
+            <option>ផ្នែកគេហកិច្ច បោកគក់ និងផ្ទះបាយ</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">វិជ្ជាជីវៈ <span class="en">/ Professional Category</span><span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="f-cat" required onchange="updateProgress()">
+            <option value="">— ជ្រើសសរ / Select —</option>
+            <option>វេជ្ជបណ្ឌិត / Physician</option>
+            <option>គិលានុបដ្ឋាក / Nurse</option>
+            <option>助产士 / Midwife</option>
+            <option>ឱសថការ / Pharmacist</option>
+            <option>បច្ចេកទេសមន្ទីរពិសោធន៍ / Lab Technician</option>
+            <option>បច្ចេកទេស X-Ray / Radiographer</option>
+            <option>អ្នកព្យាបាលចលនា / Physiotherapist</option>
+            <option>បុគ្គលិករដ្ឋបាល / Administrative Staff</option>
+            <option>ជំនួយការ / Support Staff</option>
+            <option>ផ្សេងៗ / Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">ឆ្នាំបំពេញការងារ <span class="en">/ Years of Service</span><span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="f-years" required onchange="updateProgress()">
+            <option value="">— ជ្រើសសរ / Select —</option>
+            <option>តិចជាង 1 ឆ្នាំ / Less than 1 year</option>
+            <option>1–3 ឆ្នាំ / 1–3 years</option>
+            <option>4–10 ឆ្នាំ / 4–10 years</option>
+            <option>ច្រើនជាង 10 ឆ្នាំ / More than 10 years</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">ភេទ <span class="en">/ Gender</span></label>
+        <div class="select-wrap">
+          <select id="f-gender">
+            <option value="">— ជ្រើសសរ / Select —</option>
+            <option>ប្រុស / Male</option>
+            <option>ស្រី / Female</option>
+            <option>មិនបង្ហាញ / Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: WORK ENVIRONMENT -->
+  <div class="card">
+    <div class="domain-eyebrow">
+      <span class="domain-num">B</span>
+      <div><div class="domain-title-kh">បរិស្ថានការងារ</div><div class="domain-title-en">Work Environment</div></div>
+    </div>
+    <div class="scale-legend-top"><span>😊 ល្អណាស់ Very Satisfied</span><span>😞 មិនល្អ Very Dissatisfied</span></div>
+
+    <div class="likert-item" id="qi-we1">
+      <div class="likert-q-kh">ខ.១ ស្ថានភាពកន្លែងធ្វើការ (ពន្លឺ សីតុណ្ហភាព ស្អាត)</div>
+      <div class="likert-q-en">Physical conditions — lighting, temperature, cleanliness</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="we1" id="we1-1" value="1" onchange="onLikert('we1',1)">
+        <label class="likert-opt-label" for="we1-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="we1" id="we1-2" value="2" onchange="onLikert('we1',2)">
+        <label class="likert-opt-label" for="we1-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="we1" id="we1-3" value="3" onchange="onLikert('we1',3)">
+        <label class="likert-opt-label" for="we1-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="we1" id="we1-4" value="4" onchange="onLikert('we1',4)">
+        <label class="likert-opt-label" for="we1-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="we1" id="we1-5" value="5" onchange="onLikert('we1',5)">
+        <label class="likert-opt-label" for="we1-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-we2">
+      <div class="likert-q-kh">ខ.២ ឧបករណ៍ និងសម្ភារៈចាំបាច់</div>
+      <div class="likert-q-en">Availability of necessary equipment and supplies</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="we2" id="we2-1" value="1" onchange="onLikert('we2',1)">
+        <label class="likert-opt-label" for="we2-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="we2" id="we2-2" value="2" onchange="onLikert('we2',2)">
+        <label class="likert-opt-label" for="we2-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="we2" id="we2-3" value="3" onchange="onLikert('we2',3)">
+        <label class="likert-opt-label" for="we2-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="we2" id="we2-4" value="4" onchange="onLikert('we2',4)">
+        <label class="likert-opt-label" for="we2-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="we2" id="we2-5" value="5" onchange="onLikert('we2',5)">
+        <label class="likert-opt-label" for="we2-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-we3">
+      <div class="likert-q-kh">ខ.៣ ភាពសុវត្ថិភាពនៅកន្លែងធ្វើការ</div>
+      <div class="likert-q-en">Workplace safety and security</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="we3" id="we3-1" value="1" onchange="onLikert('we3',1)">
+        <label class="likert-opt-label" for="we3-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="we3" id="we3-2" value="2" onchange="onLikert('we3',2)">
+        <label class="likert-opt-label" for="we3-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="we3" id="we3-3" value="3" onchange="onLikert('we3',3)">
+        <label class="likert-opt-label" for="we3-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="we3" id="we3-4" value="4" onchange="onLikert('we3',4)">
+        <label class="likert-opt-label" for="we3-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="we3" id="we3-5" value="5" onchange="onLikert('we3',5)">
+        <label class="likert-opt-label" for="we3-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: MANAGEMENT -->
+  <div class="card">
+    <div class="domain-eyebrow">
+      <span class="domain-num">C</span>
+      <div><div class="domain-title-kh">ការគ្រប់គ្រង និងភាពជាអ្នកដឹកនាំ</div><div class="domain-title-en">Management & Leadership</div></div>
+    </div>
+    <div class="scale-legend-top"><span>😊 ល្អណាស់</span><span>😞 មិនល្អ</span></div>
+    <div class="likert-item" id="qi-mg1">
+      <div class="likert-q-kh">គ.១ ទំនាក់ទំនងរវាងថ្នាក់គ្រប់គ្រង និងបុគ្គលិក</div>
+      <div class="likert-q-en">Communication between management and staff</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="mg1" id="mg1-1" value="1" onchange="onLikert('mg1',1)"><label class="likert-opt-label" for="mg1-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="mg1" id="mg1-2" value="2" onchange="onLikert('mg1',2)"><label class="likert-opt-label" for="mg1-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="mg1" id="mg1-3" value="3" onchange="onLikert('mg1',3)"><label class="likert-opt-label" for="mg1-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="mg1" id="mg1-4" value="4" onchange="onLikert('mg1',4)"><label class="likert-opt-label" for="mg1-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="mg1" id="mg1-5" value="5" onchange="onLikert('mg1',5)"><label class="likert-opt-label" for="mg1-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-mg2">
+      <div class="likert-q-kh">គ.២ ការគោរព និងស្មើភាពពីថ្នាក់លើ</div>
+      <div class="likert-q-en">Respect and fair treatment from supervisors</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="mg2" id="mg2-1" value="1" onchange="onLikert('mg2',1)"><label class="likert-opt-label" for="mg2-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="mg2" id="mg2-2" value="2" onchange="onLikert('mg2',2)"><label class="likert-opt-label" for="mg2-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="mg2" id="mg2-3" value="3" onchange="onLikert('mg2',3)"><label class="likert-opt-label" for="mg2-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="mg2" id="mg2-4" value="4" onchange="onLikert('mg2',4)"><label class="likert-opt-label" for="mg2-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="mg2" id="mg2-5" value="5" onchange="onLikert('mg2',5)"><label class="likert-opt-label" for="mg2-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-mg3">
+      <div class="likert-q-kh">គ.៣ ការចូលរួមបុគ្គលិកក្នុងការសម្រេចចិត្ត</div>
+      <div class="likert-q-en">Staff involvement in decision-making</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="mg3" id="mg3-1" value="1" onchange="onLikert('mg3',1)"><label class="likert-opt-label" for="mg3-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="mg3" id="mg3-2" value="2" onchange="onLikert('mg3',2)"><label class="likert-opt-label" for="mg3-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="mg3" id="mg3-3" value="3" onchange="onLikert('mg3',3)"><label class="likert-opt-label" for="mg3-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="mg3" id="mg3-4" value="4" onchange="onLikert('mg3',4)"><label class="likert-opt-label" for="mg3-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="mg3" id="mg3-5" value="5" onchange="onLikert('mg3',5)"><label class="likert-opt-label" for="mg3-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- D: TRAINING -->
+  <div class="card">
+    <div class="domain-eyebrow">
+      <span class="domain-num">D</span>
+      <div><div class="domain-title-kh">ការបណ្តុះបណ្តាល និងការអភិវឌ្ឍ</div><div class="domain-title-en">Training & Development</div></div>
+    </div>
+    <div class="scale-legend-top"><span>😊 ល្អណាស់</span><span>😞 មិនល្អ</span></div>
+    <div class="likert-item" id="qi-tr1">
+      <div class="likert-q-kh">ឃ.១ ឱកាសសម្រាប់ការបណ្តុះបណ្តាល</div>
+      <div class="likert-q-en">Opportunities for training and continuing education</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="tr1" id="tr1-1" value="1" onchange="onLikert('tr1',1)"><label class="likert-opt-label" for="tr1-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="tr1" id="tr1-2" value="2" onchange="onLikert('tr1',2)"><label class="likert-opt-label" for="tr1-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="tr1" id="tr1-3" value="3" onchange="onLikert('tr1',3)"><label class="likert-opt-label" for="tr1-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="tr1" id="tr1-4" value="4" onchange="onLikert('tr1',4)"><label class="likert-opt-label" for="tr1-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="tr1" id="tr1-5" value="5" onchange="onLikert('tr1',5)"><label class="likert-opt-label" for="tr1-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-tr2">
+      <div class="likert-q-kh">ឃ.២ ការបង្ហាត់ ណែនាំ ការផ្តល់ព័ត៌មានត្រឡប់</div>
+      <div class="likert-q-en">Coaching, mentoring and feedback from supervisors</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="tr2" id="tr2-1" value="1" onchange="onLikert('tr2',1)"><label class="likert-opt-label" for="tr2-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="tr2" id="tr2-2" value="2" onchange="onLikert('tr2',2)"><label class="likert-opt-label" for="tr2-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="tr2" id="tr2-3" value="3" onchange="onLikert('tr2',3)"><label class="likert-opt-label" for="tr2-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="tr2" id="tr2-4" value="4" onchange="onLikert('tr2',4)"><label class="likert-opt-label" for="tr2-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="tr2" id="tr2-5" value="5" onchange="onLikert('tr2',5)"><label class="likert-opt-label" for="tr2-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-tr3">
+      <div class="likert-q-kh">ឃ.៣ លទ្ធភាពឡើងឋានៈ ក្នុងវិជ្ជាជីវៈ</div>
+      <div class="likert-q-en">Career advancement and professional growth prospects</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="tr3" id="tr3-1" value="1" onchange="onLikert('tr3',1)"><label class="likert-opt-label" for="tr3-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="tr3" id="tr3-2" value="2" onchange="onLikert('tr3',2)"><label class="likert-opt-label" for="tr3-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="tr3" id="tr3-3" value="3" onchange="onLikert('tr3',3)"><label class="likert-opt-label" for="tr3-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="tr3" id="tr3-4" value="4" onchange="onLikert('tr3',4)"><label class="likert-opt-label" for="tr3-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="tr3" id="tr3-5" value="5" onchange="onLikert('tr3',5)"><label class="likert-opt-label" for="tr3-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- E: COMPENSATION -->
+  <div class="card">
+    <div class="domain-eyebrow">
+      <span class="domain-num">E</span>
+      <div><div class="domain-title-kh">ប្រាក់ខែ · បន្ទុក · ការពេញចិត្តទូទៅ</div><div class="domain-title-en">Compensation · Workload · Overall</div></div>
+    </div>
+    <div class="scale-legend-top"><span>😊 ល្អណាស់</span><span>😞 មិនល្អ</span></div>
+    <div class="likert-item" id="qi-cp1">
+      <div class="likert-q-kh">ង.១ ប្រាក់ខែ ប្រាក់លើកទឹកចិត្ត</div>
+      <div class="likert-q-en">Salary and financial incentives</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="cp1" id="cp1-1" value="1" onchange="onLikert('cp1',1)"><label class="likert-opt-label" for="cp1-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="cp1" id="cp1-2" value="2" onchange="onLikert('cp1',2)"><label class="likert-opt-label" for="cp1-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="cp1" id="cp1-3" value="3" onchange="onLikert('cp1',3)"><label class="likert-opt-label" for="cp1-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="cp1" id="cp1-4" value="4" onchange="onLikert('cp1',4)"><label class="likert-opt-label" for="cp1-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="cp1" id="cp1-5" value="5" onchange="onLikert('cp1',5)"><label class="likert-opt-label" for="cp1-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-cp2">
+      <div class="likert-q-kh">ង.២ ថ្ងៃឈប់សម្រាក ជំងឺ ពូជ (ការការពារ)</div>
+      <div class="likert-q-en">Leave entitlements — annual, sick, maternity/paternity</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="cp2" id="cp2-1" value="1" onchange="onLikert('cp2',1)"><label class="likert-opt-label" for="cp2-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="cp2" id="cp2-2" value="2" onchange="onLikert('cp2',2)"><label class="likert-opt-label" for="cp2-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="cp2" id="cp2-3" value="3" onchange="onLikert('cp2',3)"><label class="likert-opt-label" for="cp2-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="cp2" id="cp2-4" value="4" onchange="onLikert('cp2',4)"><label class="likert-opt-label" for="cp2-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="cp2" id="cp2-5" value="5" onchange="onLikert('cp2',5)"><label class="likert-opt-label" for="cp2-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-wl1">
+      <div class="likert-q-kh">ច.១ ការបែងចែកបន្ទុកការងារមានសមភាព</div>
+      <div class="likert-q-en">Fairness of workload distribution</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="wl1" id="wl1-1" value="1" onchange="onLikert('wl1',1)"><label class="likert-opt-label" for="wl1-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="wl1" id="wl1-2" value="2" onchange="onLikert('wl1',2)"><label class="likert-opt-label" for="wl1-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="wl1" id="wl1-3" value="3" onchange="onLikert('wl1',3)"><label class="likert-opt-label" for="wl1-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="wl1" id="wl1-4" value="4" onchange="onLikert('wl1',4)"><label class="likert-opt-label" for="wl1-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="wl1" id="wl1-5" value="5" onchange="onLikert('wl1',5)"><label class="likert-opt-label" for="wl1-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-wl2">
+      <div class="likert-q-kh">ច.២ ការថែទាំសុខភាពផ្ទាល់ខ្លួន តុល្យភាពជីវិត</div>
+      <div class="likert-q-en">Staff well-being and work-life balance support</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="wl2" id="wl2-1" value="1" onchange="onLikert('wl2',1)"><label class="likert-opt-label" for="wl2-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="wl2" id="wl2-2" value="2" onchange="onLikert('wl2',2)"><label class="likert-opt-label" for="wl2-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="wl2" id="wl2-3" value="3" onchange="onLikert('wl2',3)"><label class="likert-opt-label" for="wl2-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="wl2" id="wl2-4" value="4" onchange="onLikert('wl2',4)"><label class="likert-opt-label" for="wl2-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="wl2" id="wl2-5" value="5" onchange="onLikert('wl2',5)"><label class="likert-opt-label" for="wl2-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-ov1">
+      <div class="likert-q-kh">ឆ.១ ការពេញចិត្តទូទៅចំពោះការងាររបស់ខ្លួន</div>
+      <div class="likert-q-en">Overall job satisfaction at KCPH</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="ov1" id="ov1-1" value="1" onchange="onLikert('ov1',1)"><label class="likert-opt-label" for="ov1-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ល្អ​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="ov1" id="ov1-2" value="2" onchange="onLikert('ov1',2)"><label class="likert-opt-label" for="ov1-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ល្អ</span></label>
+        <input class="likert-opt-input" type="radio" name="ov1" id="ov1-3" value="3" onchange="onLikert('ov1',3)"><label class="likert-opt-label" for="ov1-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="ov1" id="ov1-4" value="4" onchange="onLikert('ov1',4)"><label class="likert-opt-label" for="ov1-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">ខ្វះ</span></label>
+        <input class="likert-opt-input" type="radio" name="ov1" id="ov1-5" value="5" onchange="onLikert('ov1',5)"><label class="likert-opt-label" for="ov1-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">ខ្វះខ្លាំង</span></label>
+      </div>
+    </div>
+    <div class="likert-item" id="qi-ov2">
+      <div class="likert-q-kh">ឆ.២ ចំណង់បន្តការងារនៅ KCPH ក្នុង 2 ឆ្នាំខាងមុខ</div>
+      <div class="likert-q-en">Intention to remain at KCPH in the next 2 years</div>
+      <div class="likert-options">
+        <input class="likert-opt-input" type="radio" name="ov2" id="ov2-1" value="1" onchange="onLikert('ov2',1)"><label class="likert-opt-label" for="ov2-1" data-v="1"><span class="opt-num">1</span><span class="opt-kh">ច្រើន​ណាស់</span></label>
+        <input class="likert-opt-input" type="radio" name="ov2" id="ov2-2" value="2" onchange="onLikert('ov2',2)"><label class="likert-opt-label" for="ov2-2" data-v="2"><span class="opt-num">2</span><span class="opt-kh">ច្រើន</span></label>
+        <input class="likert-opt-input" type="radio" name="ov2" id="ov2-3" value="3" onchange="onLikert('ov2',3)"><label class="likert-opt-label" for="ov2-3" data-v="3"><span class="opt-num">3</span><span class="opt-kh">មធ្យម</span></label>
+        <input class="likert-opt-input" type="radio" name="ov2" id="ov2-4" value="4" onchange="onLikert('ov2',4)"><label class="likert-opt-label" for="ov2-4" data-v="4"><span class="opt-num">4</span><span class="opt-kh">តិច</span></label>
+        <input class="likert-opt-input" type="radio" name="ov2" id="ov2-5" value="5" onchange="onLikert('ov2',5)"><label class="likert-opt-label" for="ov2-5" data-v="5"><span class="opt-num">5</span><span class="opt-kh">តិច​ណាស់</span></label>
+      </div>
+    </div>
+    <div style="padding: 12px 16px 16px;">
+      <div class="field-label" style="margin-bottom:8px;">មតិ ឬការណែនាំ <span class="en">/ Comments & suggestions (optional)</span></div>
+      <textarea id="f-comments" placeholder="សូមចែករំលែកគំនិត… / Share your thoughts…" rows="3"></textarea>
+    </div>
+    <div class="submit-zone">
+      <button class="btn-submit" id="btn-submit" onclick="submitSurvey()">
+        <span>📤</span>
+        <span>បញ្ជូន — Submit Survey</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+</div><!-- /view-survey -->
+
+
+<!-- ─── DASHBOARD ─── -->
+<div class="view" id="view-dashboard">
+<div class="view-inner">
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-val teal" id="ds-total">—</div>
+      <div class="kpi-lbl">ចំនួនចម្លើយ<br><span style="font-family:'DM Sans',sans-serif;">Total Responses</span></div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-val amber" id="ds-month">—</div>
+      <div class="kpi-lbl">ខែនេះ<br><span style="font-family:'DM Sans',sans-serif;">This Month</span></div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-val teal" id="ds-depts">—</div>
+      <div class="kpi-lbl">ផ្នែក<br><span style="font-family:'DM Sans',sans-serif;">Departments</span></div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-val amber" id="ds-score">—</div>
+      <div class="kpi-lbl">ពិន្ទុមធ្យម<br><span style="font-family:'DM Sans',sans-serif;">Avg Score /5</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon icon-bg-teal">🎯</div>
+      <div class="card-header-text">
+        <div class="card-header-kh">ការពេញចិត្តរួម</div>
+        <div class="card-header-en">Overall Staff Satisfaction (score ≤ 2.5)</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sat-meter">
+        <div class="sat-pct" id="dash-pct">—%</div>
+        <div class="sat-sub">of staff satisfied (rated 1 or 2)</div>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon icon-bg-teal">📊</div>
+      <div class="card-header-text">
+        <div class="card-header-kh">ពិន្ទុតាមវិស័យ</div>
+        <div class="card-header-en">Scores by Domain (lower = better)</div>
+      </div>
+    </div>
+    <div class="card-body" id="domain-bars">
+      <div class="loading-block"><span class="spinner spinner-dark"></span> Loading…</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon icon-bg-amber">🏢</div>
+      <div class="card-header-text">
+        <div class="card-header-kh">ការពេញចិត្តតាមផ្នែក</div>
+        <div class="card-header-en">Satisfaction by Department</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="chart-wrap chart-wrap-lg"><canvas id="chart-dept"></canvas></div>
+    </div>
+  </div>
+
+  <div class="btn-row no-print">
+    <button class="btn-secondary" onclick="loadDashboard()">🔄 Refresh</button>
+    <button class="btn-amber" onclick="exportExcel()">📥 Excel</button>
+    <button class="btn-secondary" onclick="window.print()">🖨️ Print</button>
+  </div>
+
+</div>
+</div><!-- /dashboard -->
+
+
+<!-- ─── RESPONSES ─── -->
+<div class="view" id="view-responses">
+<div class="view-inner">
+
+  <div class="filter-row">
+    <div class="select-wrap">
+      <select id="resp-dept" onchange="loadResponses()">
+        <option value="">ផ្នែកទាំងអស់</option>
+      </select>
+    </div>
+    <div class="select-wrap">
+      <select id="resp-month" onchange="loadResponses()">
+        <option value="">ខែទាំងអស់</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="resp-container">
+    <div class="loading-block"><span class="spinner spinner-dark"></span> Loading…</div>
+  </div>
+
+</div>
+</div><!-- /responses -->
+
+
+<!-- ─── ADMIN ─── -->
+<div class="view" id="view-admin">
+<div class="view-inner">
+
+  <div class="card admin-login-card" id="admin-login-card">
+    <div class="admin-lockup">
+      <div class="admin-lock-icon">🔐</div>
+      <div class="admin-lock-title">Admin Access</div>
+      <div class="admin-lock-sub">Enter password to continue</div>
+    </div>
+    <div class="card-body">
+      <div id="admin-msg"></div>
+      <div class="field">
+        <label class="field-label">Password / ពាក្យសម្ងាត់</label>
+        <input type="password" id="admin-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter') adminLogin()">
+      </div>
+      <button class="btn-submit mt-12" onclick="adminLogin()" style="box-shadow:none;">
+        <span>🔓</span><span>Unlock Admin</span>
+      </button>
+      <p class="text-sm" style="text-align:center;margin-top:10px;">Default: admin123</p>
+    </div>
+  </div>
+
+  <div id="admin-panel" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon icon-bg-teal">✅</div>
+        <div class="card-header-text">
+          <div class="card-header-kh">CHAS HR.9 Compliance</div>
+          <div class="card-header-en">Standard requirements checklist</div>
+        </div>
+      </div>
+      <div class="card-body-tight">
+        <div class="compliance-item"><span class="compliance-code">HR.9.1</span><span class="compliance-text">Annual staff satisfaction survey conducted across all departments</span></div>
+        <div class="compliance-item"><span class="compliance-code">HR.9.2</span><span class="compliance-text">Results analyzed by domain, department, and professional category</span></div>
+        <div class="compliance-item"><span class="compliance-code">HR.9.3</span><span class="compliance-text">Findings shared with all staff and hospital leadership</span></div>
+        <div class="compliance-item"><span class="compliance-code">HR.9.4</span><span class="compliance-text">Improvement actions documented in CAPA format and implemented</span></div>
+        <div class="compliance-item"><span class="compliance-code">HR.9.5</span><span class="compliance-text">Follow-up survey conducted to verify effectiveness of actions</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon icon-bg-amber">📌</div>
+        <div class="card-header-text">
+          <div class="card-header-kh">ព័ត៌មានប្រព័ន្ធ</div>
+          <div class="card-header-en">System Information</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="text-sm" style="line-height:2; color:var(--ink-2);">
+          <div>📍 Facility: Kampong Chhnang Provincial Hospital (CPA3)</div>
+          <div>📋 Standard: CHAS HR.9 — Staff Satisfaction</div>
+          <div>🗓️ Survey: <span id="admin-period">—</span></div>
+          <div>📊 Domains covered: Work Environment, Management, Training, Compensation, Workload, Overall</div>
+          <div>🌐 Language: Bilingual (Khmer / English)</div>
+          <div>🏢 Departments: 32 KCPH departments</div>
+        </div>
+        <div class="btn-row mt-12">
+          <button class="btn-secondary" onclick="switchTab('dashboard');loadDashboard()">📊 Dashboard</button>
+          <button class="btn-amber" onclick="exportExcel()">📥 Export All</button>
+          <button class="btn-secondary" onclick="window.print()">🖨️ Print Report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /admin -->
+
+
+<!-- ══ SCRIPT ══════════════════════════ -->
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbw7rel3KJtopFZgYb5j_H1-7kMsnnVyXKBXueBcjV9hqW03SYTG7gyysjuJlXbPMAZ6/exec';
+
+// ── NAV ──────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.getElementById('bnav-' + tab).classList.add('active');
+  if (tab === 'dashboard') loadDashboard();
+  if (tab === 'responses') loadResponses();
+}
+
+// ── PROGRESS TRACKER ─────────────────
+const LIKERT_NAMES = ['we1','we2','we3','mg1','mg2','mg3','tr1','tr2','tr3','cp1','cp2','wl1','wl2','ov1','ov2'];
+const DOMAIN_MAP = { 0: ['f-dept','f-cat','f-years'], 1:['we1','we2','we3'], 2:['mg1','mg2','mg3'], 3:['tr1','tr2','tr3'], 4:['cp1','cp2','wl1','wl2','ov1','ov2'] };
+
+function isStepDone(step) {
+  if (step === 0) return ['f-dept','f-cat','f-years'].every(id => document.getElementById(id)?.value);
+  return DOMAIN_MAP[step].every(n => document.querySelector(`input[name="${n}"]:checked`));
+}
+function updateProgress() {
+  for (let i = 0; i <= 4; i++) {
+    const el = document.getElementById('lstep-' + i);
+    if (!el) continue;
+    const done = isStepDone(i);
+    el.classList.toggle('done', done);
+    el.classList.toggle('active', !done && (i === 0 || isStepDone(i-1)));
+    // Update SVG fill
+    const svg = el.querySelector('svg');
+    if (svg) {
+      const ellipse = svg.querySelector('ellipse');
+      if (done) { ellipse.setAttribute('fill','rgba(232,146,42,0.8)'); ellipse.setAttribute('stroke','#E8922A'); }
+      else if (el.classList.contains('active')) { ellipse.setAttribute('fill','rgba(255,255,255,0.2)'); ellipse.setAttribute('stroke','rgba(255,255,255,0.6)'); }
+      else { ellipse.setAttribute('fill','rgba(255,255,255,0.08)'); ellipse.setAttribute('stroke','rgba(255,255,255,0.2)'); }
+    }
+  }
+}
+
+function onLikert(name, val) {
+  const item = document.getElementById('qi-' + name);
+  if (item) item.classList.add('answered');
+  updateProgress();
+}
+
+// ── API ──────────────────────────────
+async function callApi(action, obj = {}) {
+  const params = new URLSearchParams({ action });
+  if (Object.keys(obj).length) params.set('payload', encodeURIComponent(JSON.stringify(obj)));
+  const res = await fetch(`${API_URL}?${params.toString()}`);
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Request failed');
+  return json.data;
+}
+
+function getR(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? +el.value : null; }
+
+// ── VALIDATE ─────────────────────────
+function validate() {
+  if (!document.getElementById('f-dept').value) return 'សូមជ្រើសផ្នែក / Please select your department.';
+  if (!document.getElementById('f-cat').value)  return 'សូមជ្រើសវិជ្ជាជីវៈ / Please select your professional category.';
+  if (!document.getElementById('f-years').value) return 'សូមជ្រើសឆ្នាំ / Please select years of service.';
+  for (const n of LIKERT_NAMES) if (getR(n) === null) return 'សូមឆ្លើយគ្រប់សំណួរ / Please answer all questions (scroll up to find unanswered).';
+  return null;
+}
+
+// ── SUBMIT ───────────────────────────
+async function submitSurvey() {
+  const err = validate();
+  if (err) {
+    document.getElementById('survey-alert').innerHTML = `<div class="alert alert-error"><span class="alert-icon">⚠️</span><div>${err}</div></div>`;
+    document.getElementById('survey-alert').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  document.getElementById('survey-alert').innerHTML = '';
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span><span>កំពុងផ្ញើ… Submitting…</span>';
+  const payload = {
+    dept: document.getElementById('f-dept').value,
+    category: document.getElementById('f-cat').value,
+    years: document.getElementById('f-years').value,
+    gender: document.getElementById('f-gender').value,
+    we1:getR('we1'), we2:getR('we2'), we3:getR('we3'),
+    mg1:getR('mg1'), mg2:getR('mg2'), mg3:getR('mg3'),
+    tr1:getR('tr1'), tr2:getR('tr2'), tr3:getR('tr3'),
+    cp1:getR('cp1'), cp2:getR('cp2'),
+    wl1:getR('wl1'), wl2:getR('wl2'),
+    ov1:getR('ov1'), ov2:getR('ov2'),
+    comments: document.getElementById('f-comments').value.trim()
+  };
+  try {
+    let id = 'DEMO-' + Date.now();
+    if (API_URL !== 'PASTE_YOUR_GAS_EXEC_URL_HERE') {
+      const result = await callApi('create', payload);
+      id = result.id;
+    }
+    document.getElementById('success-id').textContent = 'Reference: ' + id;
+    document.getElementById('success-overlay').classList.add('show');
+    // Reset form
+    document.querySelectorAll('select').forEach(s => s.value = '');
+    LIKERT_NAMES.forEach(n => document.querySelectorAll(`input[name="${n}"]`).forEach(r => r.checked = false));
+    document.getElementById('f-comments').value = '';
+    document.querySelectorAll('.likert-item').forEach(i => i.classList.remove('answered'));
+    updateProgress();
+  } catch(e) {
+    document.getElementById('survey-alert').innerHTML = `<div class="alert alert-error"><span class="alert-icon">❌</span><div>ការបញ្ជូនបានបរាជ័យ — Submission failed: ${e.message}</div></div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>📤</span><span>បញ្ជូន — Submit Survey</span>';
+  }
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── DASHBOARD ────────────────────────
+let cTrend = null, cDept = null;
+
+async function loadDashboard() {
+  try {
+    const data = API_URL !== 'PASTE_YOUR_GAS_EXEC_URL_HERE' ? await callApi('summary') : demo();
+    render(data);
+  } catch(e) { render(demo()); }
+}
+
+function demo() {
+  return {
+    total:87, depts:22, thisMonth:23, avgScore:2.1, satisfiedPct:76,
+    domains:[
+      {label:'បរិស្ថានការងារ / Work Env.',score:1.9},
+      {label:'ការគ្រប់គ្រង / Management',score:2.2},
+      {label:'ការបណ្តុះបណ្តាល / Training',score:2.6},
+      {label:'ប្រាក់ខែ / Compensation',score:2.8},
+      {label:'បន្ទុកការងារ / Workload',score:2.3},
+      {label:'ទូទៅ / Overall',score:2.1}
+    ],
+    trend:{labels:['Jan','Feb','Mar','Apr','May','Jun'],satisfied:[63,68,70,71,74,76]},
+    byDept:[
+      {dept:'ជំងឺកុមារ',score:1.8},{dept:'សម្ភព',score:2.0},{dept:'ជំងឺទូទៅ',score:2.1},
+      {dept:'សល្យាគារ',score:2.2},{dept:'ICU',score:2.4},{dept:'រោគស្រ្តី',score:2.5},
+      {dept:'X-Ray',score:2.6},{dept:'មន្ទីរពិសោធន៍',score:2.7}
+    ],
+    rows:[]
+  };
+}
+
+function render(data) {
+  document.getElementById('ds-total').textContent = data.total;
+  document.getElementById('ds-month').textContent = data.thisMonth;
+  document.getElementById('ds-depts').textContent = data.depts;
+  document.getElementById('ds-score').textContent = data.avgScore.toFixed(1);
+  const pEl = document.getElementById('dash-pct');
+  pEl.textContent = data.satisfiedPct + '%';
+  pEl.className = 'sat-pct ' + (data.satisfiedPct >= 70 ? '' : data.satisfiedPct >= 50 ? 'mid' : 'low');
+
+  // Domain bars
+  document.getElementById('domain-bars').innerHTML = data.domains.map(d => {
+    const pct = Math.round(((5 - d.score) / 4) * 100);
+    return `<div class="domain-row">
+      <div class="domain-lbl">${d.label}</div>
+      <div class="domain-track"><div class="domain-fill" style="width:${pct}%"></div></div>
+      <div class="domain-score">${d.score.toFixed(1)}</div>
+    </div>`;
+  }).join('');
+
+  // Trend chart
+  if (cTrend) cTrend.destroy();
+  cTrend = new Chart(document.getElementById('chart-trend'), {
+    type: 'line',
+    data: {
+      labels: data.trend.labels,
+      datasets: [{
+        label: '% Satisfied',
+        data: data.trend.satisfied,
+        borderColor: '#0B5E63',
+        backgroundColor: 'rgba(11,94,99,0.08)',
+        fill: true, tension: 0.45,
+        pointBackgroundColor: '#E8922A',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}},
+        x:{grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+
+  // Dept chart
+  if (cDept) cDept.destroy();
+  cDept = new Chart(document.getElementById('chart-dept'), {
+    type:'bar',
+    data:{
+      labels: data.byDept.map(d=>d.dept),
+      datasets:[{
+        data: data.byDept.map(d=>d.score),
+        backgroundColor: data.byDept.map(d => d.score<=2.5?'rgba(11,94,99,0.75)':d.score<=3.5?'rgba(232,146,42,0.75)':'rgba(197,48,48,0.75)'),
+        borderRadius:5,
+        borderSkipped:false
+      }]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{min:1,max:5,grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}},
+        y:{grid:{display:false},border:{display:false},ticks:{font:{size:11}}}
+      }
+    }
+  });
+  window._lastData = data;
+}
+
+// ── RESPONSES ────────────────────────
+async function loadResponses() {
+  const container = document.getElementById('resp-container');
+  container.innerHTML = '<div class="loading-block"><span class="spinner spinner-dark"></span> Loading…</div>';
+  try {
+    let rows = API_URL !== 'PASTE_YOUR_GAS_EXEC_URL_HERE'
+      ? await callApi('list', {dept:document.getElementById('resp-dept').value, month:document.getElementById('resp-month').value})
+      : demoRows();
+    populateRespFilters(rows);
+    const dF = document.getElementById('resp-dept').value;
+    const mF = document.getElementById('resp-month').value;
+    if (dF) rows = rows.filter(r=>(r.Dept||r.dept||'')===dF);
+    if (mF) rows = rows.filter(r=>(r.Timestamp||r.timestamp||'').toString().startsWith(mF));
+    if (!rows.length) { container.innerHTML='<div class="empty-state"><div class="e-icon">📭</div><p>No responses yet</p></div>'; return; }
+    container.innerHTML=`<div class="card"><div class="card-body" style="padding:0">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Department</th><th>Category</th><th>Score</th><th>Comment</th></tr></thead>
+        <tbody>${rows.map((r,i)=>{
+          const s=parseFloat(r.AvgScore||r.avgScore||0);
+          const chip=s<=2.5?'chip-hi':s<=3.5?'chip-mid':'chip-lo';
+          return `<tr>
+            <td>${i+1}</td>
+            <td style="white-space:nowrap;font-family:'DM Sans',sans-serif;font-size:11px">${r.Timestamp||r.timestamp||'—'}</td>
+            <td style="font-size:12px">${(r.Dept||r.dept||'—').replace('ផ្នែក','')}</td>
+            <td style="font-family:'DM Sans',sans-serif;font-size:11px">${(r.Category||r.category||'—').split('/')[1]?.trim()||''}</td>
+            <td><span class="chip ${chip}">${s?s.toFixed(1):'—'}</span></td>
+            <td style="max-width:160px;font-size:11px;color:var(--ink-3)">${r.Comments||r.comments||''}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div></div></div>`;
+  } catch(e) { container.innerHTML=`<div class="alert alert-error"><span class="alert-icon">❌</span><div>${e.message}</div></div>`; }
+}
+
+function demoRows() {
+  const d=['ផ្នែកជំងឺកុមារ','ផ្នែកសម្ភព','ផ្នែកជំងឺទូទៅ','ផ្នែកសល្យាគារ'];
+  return Array.from({length:15},(_,i)=>({ID:'R'+(1000+i),Timestamp:`2026-06-${String(i+1).padStart(2,'0')}`,Dept:d[i%d.length],Category:'Nurse',AvgScore:(1.5+Math.random()*2).toFixed(1),Comments:i%5===0?'ត្រូវការឧបករណ៍':''}));
+}
+
+function populateRespFilters(rows) {
+  const depts=[...new Set(rows.map(r=>r.Dept||r.dept||''))].filter(Boolean);
+  const df=document.getElementById('resp-dept');
+  const cur=df.value;
+  df.innerHTML='<option value="">ផ្នែកទាំងអស់</option>'+depts.map(d=>`<option ${d===cur?'selected':''}>${d}</option>`).join('');
+}
+
+// ── ADMIN ────────────────────────────
+async function adminLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  const hash = await sha256(pw);
+  if (hash==='240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'||pw==='admin123') {
+    document.getElementById('admin-login-card').style.display='none';
+    document.getElementById('admin-panel').style.display='block';
+    const now=new Date();
+    document.getElementById('admin-period').textContent=`Q${Math.ceil((now.getMonth()+1)/3)} ${now.getFullYear()}`;
+  } else {
+    document.getElementById('admin-msg').innerHTML='<div class="alert alert-error"><span class="alert-icon">❌</span><div>Invalid password</div></div>';
+  }
+}
+async function sha256(m) {
+  const d=new TextEncoder().encode(m);
+  const h=await crypto.subtle.digest('SHA-256',d);
+  return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── EXPORT ───────────────────────────
+function exportExcel() {
+  const rows = window._lastData?.rows?.length ? window._lastData.rows : demoRows();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Staff Satisfaction');
+  XLSX.writeFile(wb, `KCPH_Staff_Satisfaction_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// ── INIT ─────────────────────────────
+updateProgress();
+</script>
+</body>
+</html>
